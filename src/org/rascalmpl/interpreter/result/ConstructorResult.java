@@ -35,6 +35,7 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.types.RascalType;
 import org.rascalmpl.library.util.ParseErrorRecovery;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -51,6 +52,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class ConstructorResult extends NodeResult {
@@ -114,6 +116,15 @@ public class ConstructorResult extends NodeResult {
             if (getValue().getUninstantiatedConstructorType().hasKeywordField(name, store)) {
                 return keywordFieldAccess(consType, name, store);
             }
+			if (getStaticType().isExternalType() && ((RascalType) getStaticType()).isRoleModifier()) {
+				// if it's an open syntax role, we always have the src field
+				if ("src".equals(name)) {
+					return keywordFieldAccess(consType, name, store);
+				}
+				else {
+					throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
+				}
+			}
             if (consType == RascalValueFactory.Tree_Amb) {
                 throwOnAmbFieldAccess(name); // Will never return
             }
@@ -167,7 +178,6 @@ public class ConstructorResult extends NodeResult {
         // None of the alternatives have the field, generate a static `UndeclaredField` error
         throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
     }
-
 	
 	public <U extends IValue> Result<U> positionalFieldAccess(Type consType, String name) {
 	    if (consType.hasField(name)) {
@@ -184,7 +194,10 @@ public class ConstructorResult extends NodeResult {
 	public <U extends IValue> Result<U> keywordFieldAccess(Type consType, String name, TypeStore store) {
 	    try {
 	        if (getValue().mayHaveKeywordParameters()) { 
-	            Type kwType = store.getKeywordParameterType(getValue().getUninstantiatedConstructorType(), name);
+				var ucons = getValue().getUninstantiatedConstructorType();
+	            Type kwType = "src".equals(name) 
+					? TypeFactory.getInstance().sourceLocationType() 
+					: store.getKeywordParameterType(ucons, name);
 	            
 	            if (kwType == null) {
 	                throw new UndeclaredKeywordParameter(getValue().getUninstantiatedConstructorType().getName(), name, ctx.getCurrentAST());

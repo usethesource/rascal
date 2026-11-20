@@ -18,7 +18,7 @@ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
 LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
 CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESI
 INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
@@ -634,11 +634,12 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     catch NoBinding():
                         continue;
                  }
+
                  reportMissingNonTerminalCases(current, overloads.atype, validOverloadTypes, actuals, s);
 
-                 for (tp:acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) <- overloads.atype) {
+                 for (tp:acons(ret:aadt(adtName, list[AType] _, SyntaxRole sr),  list[AType] fields, list[Keyword] kwFields) <- overloads.atype) {
                     try {
-                        validReturnTypeOverloadTypes += <tp, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
+                        validReturnTypeOverloadTypes += <tp, computeADTType(expression, adtName, sr, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
                         validOverloadTypes += tp;
                     } catch checkFailed(list[FailMessage] _):
                         continue;
@@ -674,8 +675,8 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                }
                return res;
             }
-            if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
-               res =  computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
+            if(acons(ret:aadt(adtName, list[AType] _, SyntaxRole sr), list[AType] fields, list[Keyword] kwFields) := texp){
+               res =  computeADTType(expression, adtName, sr, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
                return res;
             }
             reportCallError(current, expression, actuals, keywordArguments, s);
@@ -866,8 +867,9 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
         iactualTypesU[i] = actual_i;
     }
 
-    try
+    try {
         bindings = unifyRascalTypeParams(iformalTypesU, iactualTypesU, bindings);
+    }
     catch invalidMatch(str reason):
         s.report(error(current, reason));
           //s.report(error(i < size(actuals)  ? actuals[i] : current, reason))
@@ -882,8 +884,9 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
     }
     checkExpressionKwArgs(kwFormals, keywordArguments, bindings, s);
 
-    if(isEmpty(bindings))
+    if(isEmpty(bindings)) {
        return retType;
+    }
 
     try {
         res = instantiateRascalTypeParameters(current, retTypeU, bindings, s);

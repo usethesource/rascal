@@ -26,7 +26,7 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
-@bootstrapParser
+// @bootstrapParser commented out for bootstrapping purposes
 module lang::rascalcore::check::CollectType
 
 /*
@@ -445,12 +445,16 @@ tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType
         if(!isEmpty(neededTypeParams))
            msgs += error(n, "Type variables in aliased type %t are unbound", aliased);
         return<msgs, aliased>;
+    } else if (overloadedAType({<_,_,aadt(str name, ps, _)>, *_}) := baseType) {
+        return <[error(n, "<n> is not uniquely resolvable.", 
+                     causes=[info("<prettySyntaxRole(name, sr)>", l) | <loc l,_,aadt(_,_, SyntaxRole sr)> <- baseType.overloads])], 
+                 aadt(name, ps, illegalSyntax())>;
     } else {
         return <[], baseType>;
     }
 }
 
-@doc{Convert Rascal user types into their abstract representation.}
+@synopsis{Convert Rascal user types into their abstract representation.}
 void collect(current:(UserType) `<QualifiedName n>`, Collector c){
     <qualifier, base> = splitQualifiedName(n);
     if(isEmpty(qualifier)){
@@ -459,6 +463,10 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
         c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
     }
 
+    collectTypeWithoutParameters(current, c);
+}
+
+void collectTypeWithoutParameters(current:(UserType) `<QualifiedName n>`, Collector c) {
     try {
         <msgs, result> = handleUserType(n,  c.getType(n));
         for(m <- msgs) c.report(m);
@@ -470,16 +478,41 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
             <msgs, result> = handleUserType(n, s.getType(n));
             for(m <- msgs) s.report(m);
             return result;
-        });
+        }
+    );
 }
 
-void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collector c){
+@synopsis{special casing without using defaults}
+void collectNameInRoleContext(Type t:!(Type) `<UserType u>`, Collector c, set[IdRole] roles) = collect(t, c);
+void collectNameInRoleContext(Type t: (Type) `<UserType u>`, Collector c, set[IdRole] roles) = collectNameInRoleContext(u, c, roles);
+
+void collectNameInRoleContext(UserType u:!(UserType) `<QualifiedName n>`, Collector c, set[IdRole] roles) = collect(u, c);
+
+@synopsis{Convert Rascal user types into their abstract representation, but with a given IdRole context}
+void collectNameInRoleContext(current:(UserType) `<QualifiedName n>`, Collector c, set[IdRole] roles){
     <qualifier, base> = splitQualifiedName(n);
     if(isEmpty(qualifier)){
-        c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
+        c.use(n, roles);
     } else {
-        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
+        c.useQualified([qualifier, base], n, roles, roles + {moduleId()});
     }
+
+    collectTypeWithoutParameters(current, c);
+}
+
+void collectNameInRoleContext(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collector c, set[IdRole] roles) {
+    <qualifier, base> = splitQualifiedName(n);
+    if(isEmpty(qualifier)){
+        c.use(n, roles);
+    } else {
+        c.useQualified([qualifier, base], n, roles, roles + {moduleId()});
+    }
+    
+    collectTypeWithParameters(current, c);
+    collect(ts, c);
+}
+
+void collectTypeWithParameters(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collector c) {
     actuals = [t | t <- ts];
 
     c.calculate("parameterized type with parameters", current, n + actuals,
@@ -498,9 +531,20 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
                 bindings = (params[i].pname : s.getType(actuals[i]) | i <- index(params));
                 return instantiateRascalTypeParameters(ts, aliased, bindings, s);
             }
-            s.report(error(n, "Type %t cannot be parameterized, found %v parameter(s)", n, nactuals));
+            s.report(error(n, "Type has no formal type parameters, found %v actual parameter(s)", nactuals));
             return avoid();
-        });
+    });
+}
+
+void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collector c){
+    <qualifier, base> = splitQualifiedName(n);
+    if(isEmpty(qualifier)){
+        c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
+    } else {
+        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
+    }
+    
+    collectTypeWithParameters(current, c);
     collect(ts, c);
 }
 
@@ -889,7 +933,55 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     collect(tp, c);
 }
 
-@doc{A parsing function, useful for generating test cases.}
+// syntax type modifiers
+
+void collect(current: (Type) `data[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(dataSyntax(), current, tp, c, dataId());
+
+void collect(current: (Type) `syntax[<Type tp>]`, Collector c) 
+    = collectSyntaxRoleModifiers(contextFreeSyntax(), current, tp, c, nonterminalId());
+
+void collect(current: (Type) `lexical[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(lexicalSyntax(), current, tp, c, lexicalId());
+
+void collect(current: (Type) `keyword[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(keywordSyntax(), current, tp, c, keywordId());
+
+void collect(current: (Type) `layout[<Type tp>]`, Collector c)
+    = collectSyntaxRoleModifiers(layoutSyntax(), current, tp, c, layoutId());
+
+private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, tp:(Type) `<QualifiedName n>`, Collector c, IdRole id) {
+    collectNameInRoleContext(tp, c, {id});
+    scope = c.getScope();
+
+    c.calculate("syntax role", current, [tp], AType(Solver s) {
+        AType par = s.getTypeInScope(tp, scope, {id});
+
+        if(!par is aparameter && !par is aadt && !par is asyntaxRoleModifier && overloadedAType({<_, _, aadt(_,_,_)>, *_}) !:= par) {
+            s.report(error(current, "Unable to handle the parameter kind in `<current>`; only type parameters like `&T`, and abstract or concrete syntax names are understood."));
+            return par;
+        }
+        else {
+            return asyntaxRoleModifier(role, par);
+        }
+    });
+}
+
+// TODO: this is broken
+
+private void collectSyntaxRoleModifiers(SyntaxRole role, Type current, tp:(Type) `&<Name n>`, Collector c, IdRole id) {
+    c.use(n, {typeVarId()});
+    scope = c.getScope();
+
+    collect(tp, c);
+
+    c.calculate("syntax role", current, [tp], AType(Solver s) {
+        return asyntaxRoleModifier(role, s.getType(tp));
+    });
+}
+
+
+@synopsis{A parsing function, useful for generating test cases.}
 public Type parseType(str s) {
     return parse(#Type, s);
 }

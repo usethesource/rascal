@@ -1381,6 +1381,26 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitSyntaxRoleModifierData(SyntaxRoleModifier.Data x) { 
+    return null; 
+  }
+
+  public T visitSyntaxRoleModifierKeyword(SyntaxRoleModifier.Keyword x) { 
+    return null; 
+  }
+
+  public T visitSyntaxRoleModifierLayout(SyntaxRoleModifier.Layout x) { 
+    return null; 
+  }
+
+  public T visitSyntaxRoleModifierLexical(SyntaxRoleModifier.Lexical x) { 
+    return null; 
+  }
+
+  public T visitSyntaxRoleModifierSyntax(SyntaxRoleModifier.Syntax x) { 
+    return null; 
+  }
+
   public T visitTagDefault(Tag.Default x) { 
     return null; 
   }
@@ -1418,6 +1438,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitTypeFunction(Type.Function x) { 
+    return null; 
+  }
+
+  public T visitTypeModifier(Type.Modifier x) { 
     return null; 
   }
 

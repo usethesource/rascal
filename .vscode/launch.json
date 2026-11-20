@@ -30,7 +30,17 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
-            "vmArgs": "-Xss80m -Xmx2g -ea",
+            "vmArgs": "-Xss80m -Xmx4g -ea",
+            "console": "integratedTerminal"
+        },
+        {
+
+            "type": "java",
+            "name": "Launch RascalShell No Asserts",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.RascalShell",
+            "projectName": "rascal",
+            "vmArgs": "-Xss80m -Xmx4g",
             "console": "integratedTerminal"
         },
         {
@@ -62,7 +72,7 @@
             "type": "java",
             "name": "Attach Rascal LSP Terminal",
             "request": "attach",
-            "projectName": "rascal-lsp",
+            "projectName": "rascal",
             "hostName": "localhost",
             "port": 9871
         },

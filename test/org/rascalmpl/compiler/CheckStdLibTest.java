@@ -32,7 +32,6 @@ public class CheckStdLibTest {
             var vf = ValueFactoryFactory.getValueFactory();
             simulateShadedTypePal();
 
-
             var args = new HashMap<String,IValue>();
             var rascalRoot = rascalProjectRoot(URIUtil.createFromURI(URIUtil.fromURL(Prelude.class.getResource("/org/rascalmpl/library/Prelude.rsc")).toString()));
             var stdLibRoot = URIUtil.getChildLocation(rascalRoot, "src/org/rascalmpl/library");
@@ -44,8 +43,13 @@ public class CheckStdLibTest {
             args.put("parallelMax", vf.integer(4));
             args.put("parallelPreChecks", vf.list(preludeModule));
 
-            var monitor = RascalJunitConsoleMonitor.getInstance();
-            assertEquals("Standard library checker should not find errors", 0, RascalCompile.runMain(args, term, monitor, term.writer(), term.writer()));
+            try {
+                var monitor = RascalJunitConsoleMonitor.getInstance();
+                assertEquals("Standard library checker should not find errors", 0, RascalCompile.runMain(args, term, monitor, term.writer(), term.writer()));
+            }
+            finally {
+                term.writer().flush();
+            }
         }
         finally {
             cleanSimulatedTypePal();
