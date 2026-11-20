@@ -644,8 +644,14 @@ str escapeForJRegExp(str s){
 
 str inlineComment(value v){
     s = "<v>";
-    if(size(s) > 100){
-        s = s[..100] + " ...";
+    n = size(s);
+    if(n > 100){
+        // Try to cutoff at plausible points
+        int i = 80;
+        while(i < n && s[i] notin {" ", "\n", ",", ".", ";"}){
+            i += 1;
+        }
+        s = s[..i] + " ...";
     }
     q = str _ := v ? "\"" : "";
     return "/*<q><replaceAll(s, "*/", "*\\/")><q>*/";
