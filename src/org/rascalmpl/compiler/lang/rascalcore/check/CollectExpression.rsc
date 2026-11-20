@@ -579,6 +579,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             }
 
             AType texp = s.getType(expression);
+            
             if(isStrAType(texp)){
                 return computeExpressionNodeType(scope, actuals, keywordArguments, s);
             }
@@ -597,6 +598,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
 
             if(isConstructorAType(texp) && getConstructorResultType(texp).adtName == "Tree" && expression is qualifiedName){
                 <qualifier, base> = splitQualifiedName(expression.qualifiedName);
+               
                 if (base == "char" && (isEmpty(qualifier) || qualifier == "Tree")){
                     nactuals = size(actuals);
                     if(nactuals != 1){
@@ -675,8 +677,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                return res;
             }
             if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
-               res =  computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
-               return res;
+               return computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
             }
             reportCallError(current, expression, actuals, keywordArguments, s);
             return avalue();
