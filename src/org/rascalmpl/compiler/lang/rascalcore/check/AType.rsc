@@ -268,7 +268,7 @@ when names become ambiguous or unbound.
 bool asubtype(AType p:\aparameter(_,_), \asyntaxRoleModifier(SyntaxRole _, p)) = true;
 bool asubtype(\asyntaxRoleModifier(SyntaxRole _, AType p), p) = true;
 
-bool asubtype(a:\adt(str _, _, SyntaxRole role), asyntaxRoleModifier(role, AType par)) = asubtype(a, par);
+bool asubtype(a:\aadt(str _, _, SyntaxRole role), asyntaxRoleModifier(role, AType par)) = asubtype(a, par);
 
 bool asubtype(\start(AType a), AType b) = asubtype(a, b);
 
