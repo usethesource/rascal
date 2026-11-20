@@ -69,9 +69,10 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
             allCommonSize = totalFileSize(allCommon, fileSizes);
             someCommonSize = totalFileSize(someCommon, fileSizes);
 
-            if (score * 5 < bestScore /*if the new one is soo much better */
-                ||/* or all the scores have "improved" */ (approxBetter(allCommonSize, bestAllCommonSize) && score < bestScore && approxBetter(someCommonSize, bestSomeCommonSize))) {
-                //println("Better option: <score> <commonSize> <commonSize1> \t <allSizes> \t <[size(b) | b <- option]>");
+            weightedScore = improvementScore(score, bestScore, 1.) + improvementScore(allCommonSize, bestAllCommonSize, 1.5) + improvementScore(someCommonSize, bestSomeCommonSize, 2.);
+
+            if (weightedScore > 4.) {
+                println("Better option: <score> <allCommonSize> <someCommonSize> \t <allSizes> \t <[size(b) | b <- option]> <size(someCommon)>");
                 best = option;
                 bestScore = score;
                 bestAllCommonSize = allCommonSize;
@@ -83,11 +84,27 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
     }, totalWork = 1000);
 }
 
-private bool approxBetter(int newScore, int oldScore)
-    = newScore <= oldScore // it's lower
-        || (oldScore - newScore) < 10 // it's very close
-        || newScore <= (oldScore * 1.1) // it's within 10% of each other
-        ;
+private real improvementScore(int newScore, int oldScore, real weight) {
+    if (newScore <= oldScore) {
+        // if it's an improvement, full marks
+        return weight;
+    }
+    if (oldScore - newScore < 10) {
+        // if it's close, 75%
+        return 0.75 * weight;
+    }
+    if (newScore <= (oldScore * 1.05)) {
+        // if it's not worse than 5% over the previous score
+        // we get 50%
+        return 0.5 * weight;
+    }
+    if (newScore > oldScore * 1.2) {
+        // but if we actually are worse by more than 20% it's a negative weight
+        return -0.5 * weight;
+    }
+    // otherwise we get 0, it's not better and not worse
+    return 0.;
+}
 
 private Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {
     done = {};
@@ -134,7 +151,7 @@ private set[loc] flatten(set[set[loc]] locs) {
     return { *ll | ll <- locs};
 }
 
-list[set[loc]] tryChunk(Graph[set[loc]] imports, set[set[loc]] allClusters, map[loc, int] fileSizes, int amountOfClusters) {
+private list[set[loc]] tryChunk(Graph[set[loc]] imports, set[set[loc]] allClusters, map[loc, int] fileSizes, int amountOfClusters) {
     list[set[loc]] chunks = [ {} | _ <- [0..amountOfClusters]];
     list[int] chunkSizes = [ 0 | _ <- [0..amountOfClusters]];
     candidates = allClusters;
