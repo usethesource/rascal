@@ -69,9 +69,9 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
             allCommonSize = totalFileSize(allCommon, fileSizes);
             someCommonSize = totalFileSize(someCommon, fileSizes);
 
-            weightedScore = improvementScore(score, bestScore, 1.) + improvementScore(allCommonSize, bestAllCommonSize, 1.5) + improvementScore(someCommonSize, bestSomeCommonSize, 2.);
+            weightedScore = improvementScore(score, bestScore, 1.) + improvementScore(allCommonSize, bestAllCommonSize, 1.) + improvementScore(someCommonSize, bestSomeCommonSize, 1.);
 
-            if (weightedScore > 4.) {
+            if (weightedScore > 2.) {
                 println("Better option: <score> <allCommonSize> <someCommonSize> \t <allSizes> \t <[size(b) | b <- option]> <size(someCommon)>");
                 best = option;
                 bestScore = score;
@@ -83,24 +83,32 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
         return best;
     }, totalWork = 1000);
 }
+private real improvementScore(int newScore, int oldScore, real weight) = improvementScore(newScore, oldScore) * weight;
 
-private real improvementScore(int newScore, int oldScore, real weight) {
-    if (newScore <= oldScore) {
+private real improvementScore(int newScore, int oldScore) {
+    diff = newScore - oldScore;
+    if (diff <= 0) {
         // if it's an improvement, full marks
-        return weight;
+        return 1.0;
     }
-    if (oldScore - newScore < 10) {
+    ratio = diff / (oldScore == 0 ? 1 : oldScore);
+    if (ratio <= 0.01) {
         // if it's close, 75%
-        return 0.75 * weight;
+        return 0.75;
     }
-    if (newScore <= (oldScore * 1.05)) {
+    if (ratio <= 0.05) {
         // if it's not worse than 5% over the previous score
         // we get 50%
-        return 0.5 * weight;
+        return 0.5;
     }
-    if (newScore > oldScore * 1.2) {
+    if (ratio <= 0.1) {
+        // if it's not worse than 10% over the previous score
+        // we get 50%
+        return 0.25;
+    }
+    if (ratio >= 0.2) {
         // but if we actually are worse by more than 20% it's a negative weight
-        return -0.5 * weight;
+        return -0.5;
     }
     // otherwise we get 0, it's not better and not worse
     return 0.;
