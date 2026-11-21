@@ -41,6 +41,7 @@ public class CheckStdLibTest {
             args.put("pcfg", buildPathConfig(stdLibRoot));
 
             args.put("parallel", vf.bool(true));
+            args.put("parallelGraphBased", vf.bool(true));
             args.put("parallelMax", vf.integer(4));
             args.put("parallelPreChecks", vf.list(preludeModule));
 
@@ -54,12 +55,12 @@ public class CheckStdLibTest {
 
     private void simulateShadedTypePal() throws IOException {
         // the main runner assumes it's running inside of a shaded jar
-        // so instead we're going to copy the contents of typepal to 
+        // so instead we're going to copy the contents of typepal to
         // the target folder of where this test is running
         var typepal = PathConfig.resolveProjectOnClasspath("typepal");
         typepal = MavenRepositoryURIResolver.mavenize(typepal);
         typepal = JarURIResolver.jarify(typepal);
-        
+
         URIResolverRegistry.getInstance().copy(typepal, URIUtil.getChildLocation(PathConfig.resolveCurrentRascalRuntime(), "org/rascalmpl/typepal"), true, true);
     }
 
@@ -88,7 +89,7 @@ public class CheckStdLibTest {
                 break;
             }
             projectRoot = newRoot;
-            
+
         }
         var pcfg = new PathConfig(URIUtil.unknownLocation());
         pcfg = pcfg.addSourceLoc(stdLibRoot);
@@ -122,5 +123,5 @@ public class CheckStdLibTest {
         }
     }
 
-    
+
 }
