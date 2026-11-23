@@ -84,7 +84,10 @@ int mainMessageHandler(list[Message] messages, loc projectRoot = |unknown:///|, 
     return FAILURE;
   }
 
-  println(write(messages, projectRoot=projectRoot));
+  sMessages = write(messages, projectRoot=projectRoot);
+  if (sMessages != "") {
+    println(write(messages, projectRoot=projectRoot));
+  }
   hasErrors = hasWarnings = false;
   if(messages != []){
     hasErrors   = any(error  (_, _) <- messages);
