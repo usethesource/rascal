@@ -88,7 +88,7 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
     }, totalWork = 1000);
 }
 
-bool betterApprox(int score, bestScore) = score <= ((bestScore + 1) * 1.1); // give 10% room (and make sure it's no zero)
+bool betterApprox(int score, int bestScore) = score <= ((bestScore + 1) * 1.1); // give 10% room (and make sure it's no zero)
 
 Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {
     done = {};
