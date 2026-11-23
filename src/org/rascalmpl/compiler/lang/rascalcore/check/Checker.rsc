@@ -445,12 +445,17 @@ tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, Modu
         }
     }
 
-    // Sort TModels. This is a workaround for #2934. The starting observation is that merging of TModels using
-    // `c.addTModel` isn't commutative (because map union isn't, and the maps involved don't necessarily have disjoint
-    // keys). As a result, some orders in which TModels are merged cause problems (e.g., #2934), while other orders are
-    // harmless. The sorting below computes a harmless (supposedly) order of TModels in which TModels for indirectly
-    // (transitively) imported modules are added earlier, while TModels for directly imported modules are added later. A
-    // real fix for #2934 could be to ensure that merging of TModels is commutative.
+    // Sort TModels. This is a workaround for #2934. The key observation is that merging of TModels using `c.addTModel`
+    // isn't commutative (because map union isn't, and the maps involved don't necessarily have disjoint keys). As a
+    // result, some orders in which TModels are merged cause problems (e.g., #2934), while other orders are harmless.
+    //
+    // The sorting below computes a harmless order of TModels by sorting all imported modules based on a "knowledge
+    // graph" among their TModels. Specifically, the TModel of module `A` "has knowledge about" the TModel of module `B`
+    // when the TModel of `A` knows how to map logical locations of `B` to physical locations. (The whole issue is that
+    // this knowledge may be wrong when `A` was typechecked against a different version of `B` than the version used in
+    // the current typecheck.) The TModel of `A` will be added first, including any `logical2physical` mappings of `B`
+    // it knows about. The TModel of `B` will be added second, overwriting the `logical2physical` mappings of `B`
+    // (necessarily right) that `A` previously contributed (possibly wrong).
     map[loc, TModel] tmsByModuleLoc = (|rascal+module:///<replaceAll(tm.modelName, "::", "/")>|: tm | TModel tm <- tms);
     rel[loc, loc] graph = {<from, to> | loc from <- tmsByModuleLoc, loc to <- tmsByModuleLoc, from != to, to in tmsByModuleLoc[from].logical2physical};
     tms = [tmsByModuleLoc[l] | loc l <- order(graph)];
