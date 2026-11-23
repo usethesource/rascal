@@ -454,7 +454,8 @@ tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, Modu
     // (necessarily right) that `A` previously contributed (possibly wrong).
     map[loc, TModel] tmsByModuleLoc = (|rascal+module:///<replaceAll(tm.modelName, "::", "/")>|: tm | TModel tm <- tms);
     rel[loc, loc] graph = {<from, to> | loc from <- tmsByModuleLoc, loc to <- tmsByModuleLoc, from != to, to in tmsByModuleLoc[from].logical2physical};
-    tms = [tmsByModuleLoc[l] | loc l <- order(graph)];
+    tms = [tmsByModuleLoc[l] | loc l <- order(graph)]
+        + [tmsByModuleLoc[l] | loc l <- tmsByModuleLoc, /l !:= graph];
 
     // Add TModels
     for (TModel tm <- tms) {
