@@ -76,7 +76,6 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
                         score < bestScore
                         && betterApprox(allSharedSize, bestAllSharedSize)
                         && betterApprox(someSharedSize, bestSomeSharedSize))) {
-                println("Better option: <score> <allSharedSize> <someSharedSize> \t <allSizes> \t <[size(b) | b <- option]>");
                 best = option;
                 bestScore = score;
                 bestAllSharedSize = allSharedSize;
