@@ -155,9 +155,10 @@ public class JavaMethod extends NamedFunction {
 		Environment old = ctx.getCurrentEnvt();
 
 		try {
-			ctx.pushEnv(getName());
+			var currentAST = ctx.getCurrentAST();
+			var env = new Environment(old, old, currentAST != null ? currentAST.getLocation() : null, getAst().getLocation(), name, true);
+			ctx.setCurrentEnvt(env);
 			ctx.setCurrentAST(getAst()); // otherwise it becomes the final parameter of the call site
-			Environment env = ctx.getCurrentEnvt();
 			Map<Type, Type> renamings = Collections.emptyMap();
 
 			if (formals.isOpen() || anyOpen(actualStaticTypes)) {
