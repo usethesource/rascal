@@ -427,16 +427,15 @@ tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, Modu
     pcfg = ms.pathConfig;
     
     // Gather TModels to be added
-    list[TModel] tms = [];
+    map[loc, TModel] tms = (); // Keys of this map should be logical locations of the form `|rascal+module:///...|`
     for(<from, pathRole, imp> <- ms.paths, from in moduleIds){
-        if(imp notin added, imp notin moduleIds){
+        if(imp notin tms, imp notin moduleIds){
             if(hasProperty(imp, ms, tpl_uptodate())){
-                added += imp;
                 <found, tm, ms> = getTModelForModule(imp, ms);
                 if(pathRole == importPath()){
                     tm.defines = {d | d <- tm.defines, d.idRole == moduleVariableId() ==> d.defInfo.vis == publicVis() };
                 }
-                tms += tm;
+                tms += (imp: tm);
             }
         }
     }
@@ -452,17 +451,16 @@ tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, Modu
     // the current typecheck.) The TModel of `A` will be added first, including any `logical2physical` mappings of `B`
     // it knows about. The TModel of `B` will be added second, overwriting the `logical2physical` mappings of `B`
     // (necessarily right) that `A` previously contributed (possibly wrong).
-    map[loc, TModel] tmsByModuleLoc = (|rascal+module:///<replaceAll(tm.modelName, "::", "/")>|: tm | TModel tm <- tms);
-    rel[loc, loc] graph = {<from, to> | loc from <- tmsByModuleLoc, loc to <- tmsByModuleLoc, from != to, to in tmsByModuleLoc[from].logical2physical};
-    tms = [tmsByModuleLoc[l] | loc l <- order(graph)]
-        + [tmsByModuleLoc[l] | loc l <- tmsByModuleLoc, /l !:= graph];
+    rel[loc, loc] graph = {<from, to> | loc from <- tms, loc to <- tms, from != to, to in tms[from].logical2physical};
+    list[loc] toBeAdded = order(graph) + [l | loc l <- tms, /l !:= graph];
 
     // Add TModels
-    for (TModel tm <- tms) {
+    for (loc l <- toBeAdded) {
         try {
-            c.addTModel(tm);
+            c.addTModel(tms[l]);
+            added += l; // Only when `addTModel` doesn't throw
         } catch wrongTplVersion(str reason): {
-            ms.messages[imp] ? {} += { Message::error(reason, ms.moduleLocs[imp]) };
+            ms.messages[l] ? {} += { Message::error(reason, ms.moduleLocs[l]) };
         }
     }
     return <added, ms>;
