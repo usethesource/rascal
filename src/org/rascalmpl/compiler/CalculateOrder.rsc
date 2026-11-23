@@ -46,75 +46,51 @@ list[set[loc]] chunkGraph(Graph[set[loc]] graph, set[loc] preCompute, map[loc, i
         allClusters = (graph<0> + graph<1>) - {{}};
         best = [{*c | c <- allClusters}];
         bestScore = (0 | it + fileSizes[f] | c <- allClusters, f <- c);
-        bestAllCommonSize = bestScore;
-        bestSomeCommonSize = bestScore;
+        bestAllSharedSize = bestScore;
+        bestSomeSharedSize = bestScore;
         for (_ <- [0..1000]) {
-            step("best unbalance: <bestScore> and <bestAllCommonSize> & <bestSomeCommonSize> commonSize", 1);
+            step("best unbalance: <bestScore> and <bestAllSharedSize> <bestSomeSharedSize>", 1);
             option = tryChunk(imports, allClusters, fileSizes, amountOfClusters);
             if (size(option) < amountOfClusters) {
                 continue;
             }
-            allSizes = sort([ (0 | it + fileSizes[c] | c <- cluster) | cluster <- option]);
+            allSizes = sort([ totalFileSize(cluster, fileSizes) | cluster <- option]);
+
             if (allSizes[-1] / 5 > allSizes[-2]) {
-                // skipping cases where everything (or at least 5x as much as the 2nd largest) 
+                // skipping cases where everything (or at least 5x as much as the 2nd largest)
                 // landed in one bucket as in those cases, it's better to just not use concurrency
                 continue;
             }
-            // the score is the "spread" of size between the smallest and largest and the max, to optimize for some split
+
+            // score is the size difference between largest and smallest cluster
+            // to try and find a balance between them.
             score = allSizes[-1] - allSizes[0];
 
-            // next factor is how many modules are shared/common between the chunks
-            allCommon = (option[0] | it & clus | clus <- option[1..]);
-            someCommon = { m | cc <- allClusters, m <- cc, (0 | it + (m in op ? 1 : 0) | op <- option) >= 2 };
-            allCommonSize = totalFileSize(allCommon, fileSizes);
-            someCommonSize = totalFileSize(someCommon, fileSizes);
-
-            weightedScore = improvementScore(score, bestScore, 1.) + improvementScore(allCommonSize, bestAllCommonSize, 1.) + improvementScore(someCommonSize, bestSomeCommonSize, 1.);
-
-            if (weightedScore > 2.) {
-                println("Better option: <score> <allCommonSize> <someCommonSize> \t <allSizes> \t <[size(b) | b <- option]> <size(someCommon)>");
+            // now let's calculate secondary score based on the size of the common modules
+            allShared = (option[0] | it & clus | clus <- option[1..]);
+            someShared = { m | cc <- allClusters, m <- cc, (0 | it + (m in op ? 1 : 0) | op <- option) >= 2 };
+            allSharedSize = totalFileSize(allShared, fileSizes);
+            someSharedSize = totalFileSize(someShared, fileSizes);
+            if (score * 5 < bestScore // we realy got a lot better
+                || ( // or we improved mostly
+                        score < bestScore
+                        && betterApprox(allSharedSize, bestAllSharedSize)
+                        && betterApprox(someSharedSize, bestSomeSharedSize))) {
+                println("Better option: <score> <allSharedSize> <someSharedSize> \t <allSizes> \t <[size(b) | b <- option]>");
                 best = option;
                 bestScore = score;
-                bestAllCommonSize = allCommonSize;
-                bestSomeCommonSize = someCommonSize;
+                bestAllSharedSize = allSharedSize;
+                bestSomeSharedSize = someSharedSize;
             }
         }
         println("Split the work into clusters: <[size(b) | b <- best]>");
         return best;
     }, totalWork = 1000);
 }
-private real improvementScore(int newScore, int oldScore, real weight) = improvementScore(newScore, oldScore) * weight;
 
-private real improvementScore(int newScore, int oldScore) {
-    diff = newScore - oldScore;
-    if (diff <= 0) {
-        // if it's an improvement, full marks
-        return 1.0;
-    }
-    ratio = diff / (oldScore == 0 ? 1 : oldScore);
-    if (ratio <= 0.01) {
-        // if it's close, 75%
-        return 0.75;
-    }
-    if (ratio <= 0.05) {
-        // if it's not worse than 5% over the previous score
-        // we get 50%
-        return 0.5;
-    }
-    if (ratio <= 0.1) {
-        // if it's not worse than 10% over the previous score
-        // we get 50%
-        return 0.25;
-    }
-    if (ratio >= 0.2) {
-        // but if we actually are worse by more than 20% it's a negative weight
-        return -0.5;
-    }
-    // otherwise we get 0, it's not better and not worse
-    return 0.;
-}
+bool betterApprox(int score, bestScore) = score <= ((bestScore + 1) * 1.1); // give 10% room (and make sure it's no zero)
 
-private Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {
+Graph[loc] moduleDependencies(set[loc] modules, PathConfig pcfg) {
     done = {};
     todo = modules;
     Graph[loc] result = {};
