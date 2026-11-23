@@ -65,8 +65,8 @@ default bool asubtype(AType l, AType r){
         case tvar(_):
             throw TypeUnavailable();
         case overloadedAType(overloads):
-            //TODO: Alternative: return asubtype(l, (\avoid() | alub(it, tp) | <_, _, tp> <- overloads));
-           return isEmpty(overloads) ? asubtype(l, avoid()) : any(<_, _, tp> <- overloads, asubtype(l, tp));
+            //TODO: Alternative: return asubtype(l, (\avoid() | alub(it, tp) | tp <- overloads<2>));
+           return isEmpty(overloads) ? asubtype(l, avoid()) : any(tp <- overloads<2>, asubtype(l, tp));
         case avalue():
             return true;
         case anum():
@@ -176,8 +176,8 @@ bool asubtypeLeftTypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r
 }
 
 bool asubtype(overloadedAType(overloads), AType r)
-    //TODO: Alternative: = asubtype((\avoid() | alub(it, tp) | <_, _, tp> <- overloads), r);
-    = isEmpty(overloads) ? asubtype(avoid(), r) : any(<_, _, tp> <- overloads, asubtype(tp, r));
+    //TODO: Alternative: = asubtype((\avoid() | alub(it, tp) | tp <- overloads<2>), r);
+    = isEmpty(overloads) ? asubtype(avoid(), r) : any(tp <- overloads<2>, asubtype(tp, r));
 
 bool asubtype(avoid(), AType _) = true;
 default bool asubtype(AType _, avalue()) = true;
@@ -572,12 +572,12 @@ default AType alub(AType s, AType t)
 AType alub(atypeList(ts1), atypeList(ts2)) = atypeList(alubList(ts1, ts2));
 
 AType alub(overloadedAType(overloads), AType t2)
-   // TODO:Alternative: alub((\avoid() | alub(it, tp) | <_, _, tp> <- overloads), t2);
-   = isEmpty(overloads) ? t2 : alub((avalue() | aglb(it, tp) | <_, _, tp> <- overloads), t2);
+   // TODO:Alternative: alub((\avoid() | alub(it, tp) | tp <- overloads<2>), t2);
+   = isEmpty(overloads) ? t2 : alub((avalue() | aglb(it, tp) | tp <- overloads<2>), t2);
 
 AType alub(AType t1, overloadedAType(overloads))
-    //TODO: Alternative: = alub(t1, (\avoid() | alub(it, tp) | <_, _, tp> <- overloads));
-    = isEmpty(overloads) ? t1 : alub(t1, (avalue() | aglb(it, tp)  | <_, _, tp> <- overloads));
+    //TODO: Alternative: = alub(t1, (\avoid() | alub(it, tp) | tp <- overloads<2>));
+    = isEmpty(overloads) ? t1 : alub(t1, (avalue() | aglb(it, tp)  | tp <- overloads<2>));
 
 AType alub(avalue(), AType t) = avalue();
 AType alub(AType s, avalue()) = avalue();
@@ -783,12 +783,12 @@ public AType aglb(arel(AType s), aset(AType t)) = aset(aglb(atuple(s), t));
 AType aglb(arel(atypeList(list[AType] l)), arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(aglbList(l, r))) : aset(avalue());
 
 AType aglb(overloadedAType(overloads), AType t2)
-    //TODO: Alternative: = aglb((\avoid() | alub(it, tp) | <_, _, tp> <- overloads), t2);
-    = isEmpty(overloads) ? t2 : aglb((avoid() | alub(it, tp) | <_, _, tp> <- overloads), t2);
+    //TODO: Alternative: = aglb((\avoid() | alub(it, tp) | tp <- overloads<2>), t2);
+    = isEmpty(overloads) ? t2 : aglb((avoid() | alub(it, tp) | tp <- overloads<2>), t2);
 
 AType aglb(AType t1, overloadedAType(overloads))
-    //TODO: Alternative: = aglb(t1, (\avoid() | alub(it, tp) | <_, _, tp> <- overloads));
-    = isEmpty(overloads) ? t1 : aglb(t1, (avoid() | alub(it, tp)  | <_, _, tp> <- overloads));
+    //TODO: Alternative: = aglb(t1, (\avoid() | alub(it, tp) | tp <- overloads<2>));
+    = isEmpty(overloads) ? t1 : aglb(t1, (avoid() | alub(it, tp)  | tp <- overloads<2>));
 
 public AType aglb(alist(AType s), alist(AType t)) = alist(aglb(s, t));
 public AType aglb(alist(AType s), alrel(AType t)) = alist(aglb(s,atuple(t)));

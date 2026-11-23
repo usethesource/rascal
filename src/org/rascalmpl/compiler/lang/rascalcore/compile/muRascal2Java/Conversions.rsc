@@ -138,7 +138,7 @@ str atype2idpart(t:acons(AType adt, list[AType] fields, list[Keyword] kwFields))
 str atype2idpart(overloadedAType(rel[loc, IdRole, AType] overloads)){
     resType = avoid();
     formalsType = avoid();
-    for(<_, _, tp> <- overloads){
+    for(tp <- overloads<2>){
         resType = alub(resType, getResult(tp));
         formalsType = alub(formalsType, atypeList(getFormals(tp)));
     }
@@ -264,7 +264,7 @@ str atype2IValue1(at:acons(AType adt, list[AType] fields, list[Keyword] kwFields
 str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType, set[AType]] defs){
     resType = avoid();
     formalsType = avoid();
-    for(<_, _, tp> <- overloads){
+    for(tp <- overloads<2>){
         resType = alub(resType, getResult(tp));
         formalsType = alub(formalsType, atypeList(getFormals(tp)));
     }
@@ -644,8 +644,14 @@ str escapeForJRegExp(str s){
 
 str inlineComment(value v){
     s = "<v>";
-    if(size(s) > 100){
-        s = s[..100] + " ...";
+    n = size(s);
+    if(n > 100){
+        // Try to cutoff at plausible points
+        int i = 80;
+        while(i < n && s[i] notin {" ", "\n", ",", ".", ";"}){
+            i += 1;
+        }
+        s = s[..i] + " ...";
     }
     q = str _ := v ? "\"" : "";
     return "/*<q><replaceAll(s, "*/", "*\\/")><q>*/";

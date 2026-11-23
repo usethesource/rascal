@@ -1180,8 +1180,8 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
       if(expType.alabel?){
         qname = expType.alabel;
       } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := expType,
-                any(<_, _, tp> <- overloads, tp.alabel?)){
-        for(<_, _, tp> <- overloads){
+                any(tp <- overloads<2>, tp.alabel?)){
+        for(tp <- overloads<2>){
             if(tp.alabel?){
                 qname = tp.alabel; break;
             }

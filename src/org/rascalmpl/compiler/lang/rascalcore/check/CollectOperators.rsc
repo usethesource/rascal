@@ -48,7 +48,7 @@ void collect(current: (Expression) `<Expression e> is <Name n>`, Collector c){
 
 private AType do_computeIsType(Tree current, AType t1, Solver s){               // TODO: check that name exists
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
-        for(<_, _, tp> <- overloads){
+        for(tp <- overloads<2>){
            try return do_computeIsType(current, tp, s);
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
@@ -67,7 +67,7 @@ void collect(current: (Expression) `<Expression e> has <Name n>`, Collector c){
 
 private AType _computeHasType(Tree current, AType t1, Solver s){
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
-        for(<_, _, tp> <- overloads){
+        for(tp <- overloads<2>){
            try return _computeHasType(current, tp, s);
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
@@ -650,7 +650,7 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
                     s.fact(pat, patType);
              }
              if(overloadedAType(rel[loc, IdRole, AType] overloads) := elmType){
-                for(<_, _, tp> <- overloads){
+                for(tp <- overloads<2>){
                     if(comparable(patType, tp)) return abool();
                 }
                 s.report(error(pat, "Pattern of type %t cannot be used to enumerate over %t", patType, exprType));
@@ -699,7 +699,7 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
     } else if (isOptType(etype)) {
         return getOptType(etype);
     } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := etype){
-        for(<_, _, tp> <- overloads, isEnumeratorType(tp)){
+        for(tp <- overloads<2>, isEnumeratorType(tp)){
             try {
                 return computeEnumeratorElementType(current, tp, s);
             } catch checkFailed(list[FailMessage] _): /* do nothing and try next overload*/;

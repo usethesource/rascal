@@ -102,7 +102,7 @@ str prettyAType(areified(AType t)) = "type[<prettyAType(t)>]";
 
 // utilities
 str prettyAType(overloadedAType(rel[loc, IdRole, AType] overloads))
-                = intercalateOr([prettyAType(t1) | t1 <- {t | <_, _, t> <- overloads} ]);
+                = intercalateOr([prettyAType(t1) | t1 <- overloads<2> ]);
 
 str prettyAType(list[AType] atypes) = intercalate(", ", [prettyAType(t) | t <- atypes]);
 
@@ -211,7 +211,7 @@ Symbol atype2symbol1(areified(AType t)) = Symbol::reified(atype2symbol(t));
 // overloaded types (union types) do not exist at the Rascal runtime level,
 // so we lub the alternatives here which is what happens at run-time as well.
 Symbol atype2symbol1(overloadedAType(rel[loc, IdRole, AType] overloads))
-                = atype2symbol((\avoid() | alub(it, alt) | <_, _, alt> <- overloads));
+                = atype2symbol((\avoid() | alub(it, alt) | alt <- overloads<2>));
 
 list[Symbol] atypes2symbols(list[AType] atypes) = [atype2symbol(t) | t <- atypes];
 
@@ -658,7 +658,7 @@ bool hasKeywordParameters(acons(AType adt, list[AType] fields, list[Keyword] kwF
     = !isEmpty(kwFields);
     
 bool hasKeywordParameters(overloadedAType(overloads))
-    = any(<loc _, IdRole _, AType t> <- overloads, hasKeywordParameters(t));
+    = any(t <- overloads<2>, hasKeywordParameters(t));
 
 default bool hasKeywordParameters(AType t) = false;
 
@@ -1498,9 +1498,26 @@ default AType removeConditional(AType s) = s;
 
 // Filter potential overloads based on IdRole
 
-public AType filterOverloads(overloadedAType(rel[loc, IdRole, AType] overloads), set[IdRole] roles){
-    reduced = { <l, r, t> | <l, r, t> <- overloads, r in roles };
+public AType filterOverloadsByRole(overloadedAType(rel[loc, IdRole, AType] overloads), set[IdRole] roles){
+    reduced = { t | t:<loc _, IdRole r, AType _> <- overloads, r in roles };
     if({<_,_,t>} := reduced) return t;
     return overloadedAType(reduced);
 }
-public default AType filterOverloads(AType t, set[IdRole] roles) = t;
+
+public default AType filterOverloadsByRole(AType t, set[IdRole] roles) = t;
+
+@synopsis{Filter overloads by ((AType)).}
+rel[loc, IdRole, AType] filterOverloadsByAType(rel[loc, IdRole, AType] _overloads, set[AType] _atypes:{})
+    = {};
+
+@synopsis{Filter overloads by ((AType)).}
+default rel[loc, IdRole, AType] filterOverloadsByAType(rel[loc, IdRole, AType] overloads, set[AType] atypes)
+    = {t | t:<loc _, IdRole _, AType atype> <- overloads, atype in atypes};
+
+@synopsis{Filter overloads by ((AType)) and map their type.}
+rel[loc, IdRole, AType] filterAndRetypeOverloads(rel[loc, IdRole, AType] _overloads, rel[AType, AType] _atypes:{})
+    = {};
+
+@synopsis{Filter overloads by ((AType)) and map their type.}
+default rel[loc, IdRole, AType] filterAndRetypeOverloads(rel[loc, IdRole, AType] overloads, rel[AType, AType] atypes)
+    = {<def, idRole, atype<1>> | <def, idRole, ovlType> <- overloads, atype <- atypes, atype<0> == ovlType};
