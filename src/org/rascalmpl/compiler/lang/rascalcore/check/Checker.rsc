@@ -433,14 +433,10 @@ tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, Modu
             if(hasProperty(imp, ms, tpl_uptodate())){
                 added += imp;
                 <found, tm, ms> = getTModelForModule(imp, ms);
-                try {
-                    if(pathRole == importPath()){
-                        tm.defines = {d | d <- tm.defines, d.idRole == moduleVariableId() ==> d.defInfo.vis == publicVis() };
-                    }
-                    tms += tm;
-                } catch wrongTplVersion(str reason): {
-                    ms.messages[imp] ? {} += { Message::error(reason, ms.moduleLocs[imp]) };
+                if(pathRole == importPath()){
+                    tm.defines = {d | d <- tm.defines, d.idRole == moduleVariableId() ==> d.defInfo.vis == publicVis() };
                 }
+                tms += tm;
             }
         }
     }
@@ -461,7 +457,13 @@ tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, Modu
     tms = [tmsByModuleLoc[l] | loc l <- order(graph)];
 
     // Add TModels
-    for (TModel tm <- tms) c.addTModel(tm);
+    for (TModel tm <- tms) {
+        try {
+            c.addTModel(tm);
+        } catch wrongTplVersion(str reason): {
+            ms.messages[imp] ? {} += { Message::error(reason, ms.moduleLocs[imp]) };
+        }
+    }
     return <added, ms>;
 }
 
