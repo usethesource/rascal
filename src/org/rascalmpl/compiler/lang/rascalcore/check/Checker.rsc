@@ -429,7 +429,7 @@ tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, Modu
     // Gather TModels to be added
     map[loc, TModel] tms = (); // Keys of this map should be logical locations of the form `|rascal+module:///...|`
     for(<from, pathRole, imp> <- ms.paths, from in moduleIds){
-        if(imp notin tms, imp notin moduleIds){
+        if(imp notin added, imp notin moduleIds, imp notin tms){
             if(hasProperty(imp, ms, tpl_uptodate())){
                 <found, tm, ms> = getTModelForModule(imp, ms);
                 if(pathRole == importPath()){
