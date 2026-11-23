@@ -270,6 +270,7 @@ void collect(current: (Statement) `insert <Statement expr>`, Collector c){
                      exprType = s.instantiate(exprType);
                      patType = s.instantiate(patType);
                   }
+                  checkNonVoid(expr, exprType, s, "Inserted value");
                   s.requireSubType(exprType, patType, error(expr, "Insert type should be subtype of %t, found %t", patType, exprType));
              });
           c.fact(current, expr);
@@ -392,6 +393,7 @@ void collect(current: (Statement) `append <DataTarget dataTarget> <Statement sta
                 c.setScopeInfo(scope, loopScope(), loopInfo(loopName1, appends + [current]));
                 //c.calculate("append type", current, [statement], AType(Solver s){ return s.getType(statement); });
                 c.fact(current, statement);
+                c.require("non-void append", statement, [statement], makeNonVoidRequirement(statement, "Appended value"));
                 collect(statement, c);
                 return;
              }
@@ -1168,7 +1170,7 @@ private AType computeAnnoAssignableType(Statement current, AType receiverType, N
     if (isNodeAType(receiverType) || isADTAType(receiverType) || isNonTerminalAType(receiverType)) {
         if(overloadedAType(rel[loc, IdRole, AType] overloads) := annoNameType){
             anno_overloads = {};
-            for(<key, annoId(), tp1> <- overloads, aanno(_, onType, tp2) := tp1, asubtype(receiverType, onType)){
+            for(<key, annoId(), tp1> <- overloads, aanno(_, onType, _) := tp1, asubtype(receiverType, onType)){
                anno_overloads += <key, annoId(), tp1>;
            }
             if(isEmpty(anno_overloads)) s.report(error(current, "Annotation on %t cannot be resolved from %t", receiverType, annoNameType));
@@ -1203,6 +1205,7 @@ private default list[QualifiedName] getReceiver(Assignable asg, Collector c) { t
 
 void collect(current:(Statement) `throw <Statement statement>`, Collector c){
     c.calculate("throw", current, [statement], AType(Solver _) { return avoid(); });
+    c.require("non-void throw", statement, [statement], makeNonVoidRequirement(statement, "Thrown value"));
     collect(statement, c);
 }
 

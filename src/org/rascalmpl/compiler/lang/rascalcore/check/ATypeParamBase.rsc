@@ -96,7 +96,7 @@ set[AType] collectAndUnlabelRascalTypeParams(set[AProduction] prods) {
 }
 
 @doc{See if a type contains any type parameters.}
-bool typeContainsRascalTypeParams(AType t) = size(collectRascalTypeParams(t)) > 0;
+bool typeContainsRascalTypeParams(AType t) = /aparameter(_,_) := t;
 
 @doc{Return the names of all type variables in the given type.}
 set[str] typeParamNames(AType t) {

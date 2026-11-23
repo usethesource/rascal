@@ -384,13 +384,22 @@ public class Environment implements IRascalFrame {
 		return null; // not found
 	}
 	
+	protected static boolean canProduce(Type declaredReturnType, Type requested) {
+		if (declaredReturnType.isBottom()) {
+			return false;
+		}
+
+		return declaredReturnType.isSubtypeOf(requested)
+			|| (declaredReturnType.isOpen() && declaredReturnType.comparable(requested));
+	}
+
 	public void getAllFunctions(Type returnType, String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null) {
 			LinkedHashSet<AbstractFunction> locals = functionEnvironment.get(name);
 			
 			if (locals != null) {
 				for (AbstractFunction func : locals) {
-					if (func.getReturnType().comparable(returnType)) {
+					if (canProduce(func.getReturnType(), returnType)) {
 						collection.add(func);
 					}
 				}

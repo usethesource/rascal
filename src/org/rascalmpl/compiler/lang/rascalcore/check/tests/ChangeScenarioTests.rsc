@@ -819,7 +819,7 @@ test bool changeMultipleTimes() { // ht @toinehartman
 // Benchmarks for incremental type checking
 
 void benchmark(str title, lrel[str, void()] cases){
-    measurements = [];
+    lrel[str, int] measurements = [];
 	for (<str Name, runCase> <- cases) {
         println("Running <Name>");
 		measurements+= <Name, realTimeOf(runCase)>;

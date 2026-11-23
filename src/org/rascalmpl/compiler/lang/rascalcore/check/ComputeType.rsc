@@ -49,6 +49,7 @@ void checkConditions(list[Expression] condList, Solver s){
             s.requireUnify(abool(), tcond, error(cond, "Cannot unify %t with `bool`", cond));
             tcond = s.instantiate(tcond);
         }
+        checkNonVoid(cond, tcond, s, "Condition");
         s.requireSubType(tcond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
     }
 }
@@ -60,49 +61,56 @@ void requireFullyInstantiated(Solver s, AType ts...){
 }
 
 void checkNonVoid(Tree e, Collector c, str msg){
-    if(isVoidAType(c.getType(e))) c.report(error(e, msg + " should not have type `void`"));
+    checkNonVoid(e, c.getType(e), c, msg);
 }
 
 void checkNonVoid(Tree e, AType t, Collector c, str msg){
-    if(isVoidAType(t)) c.report(error(e, msg + " should not have type `void`"));
+    if(hasVoidAlternative(t)) c.report(error(e, msg + " should not have type `void`"));
 }
 
 void checkNonVoid(Tree e, Solver s, str msg){
-    if(isVoidAType(s.getType(e))) s.report(error(e, msg + " should not have type `void`"));
+    checkNonVoid(e, s.getType(e), s, msg);
 }
 
 void checkNonVoid(Tree e, AType t, Solver s, str msg){
-    if(isVoidAType(t)) s.report(error(e, msg + " should not have type `void`"));
+    if(hasVoidAlternative(t)) s.report(error(e, msg + " should not have type `void`"));
 }
+
+private bool hasVoidAlternative(overloadedAType(overloads))
+    = any(<_, _, tp> <- overloads, hasVoidAlternative(tp));
+
+private default bool hasVoidAlternative(AType t) = isVoidAType(t);
 
 AType(Solver) makeGetSyntaxType(Type varType)
     = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
 
-rel[loc key, IdRole idRole, AType atype]
-    checkAndFilterOverloads(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s){
-    
-    rel[loc key, IdRole idRole, AType atype] filteredOverloads = {};
-    rel[loc key, IdRole idRole, AType atype] unResolvedConstructorOverloads = {};
-    for(tup:<_, _, tp> <- overloads){
+rel[loc key, IdRole idRole, AType atype] checkAndFilterOverloads(Tree expr, rel[loc, IdRole, AType] overloads, AType expected, Solver s)
+    = filterOverloadsByAType(overloads, checkAndFilterOverloadTypes(expr, overloads, expected, s));
+
+set[AType] checkAndFilterOverloadTypes(Tree expr, rel[loc key, IdRole idRole, AType atype] overloads, AType expected, Solver s) {
+    set[AType] filteredTypes = {};
+    set[AType] unResolvedConstructorOverloadTypes = {};
+    for(tp <- overloads<2>){
         if(isValueAType(expected)){
-            filteredOverloads += tup;
+            filteredTypes += tp;
             if(isConstructorAType(tp) || isADTAType(tp)){
-                unResolvedConstructorOverloads += tup;
+                unResolvedConstructorOverloadTypes += tp;
             }
         } else if(asubtype(tp, expected)){
-            filteredOverloads += tup;
+            filteredTypes += tp;
         } else if(isConstructorAType(tp) || isADTAType(tp)){
-            unResolvedConstructorOverloads += tup;
+            unResolvedConstructorOverloadTypes += tp;
         } 
     }
-    if(size(unResolvedConstructorOverloads) > 1){
-        adtNames = { getADTName(tp) | <_, _, tp>  <- unResolvedConstructorOverloads };
+
+    if(size(filterOverloadsByAType(overloads, unResolvedConstructorOverloadTypes)) > 1) {
+        adtNames = { getADTName(tp) | tp  <- unResolvedConstructorOverloadTypes };
         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
         msg = error(expr, "Expression `<expr>` is overloaded, to resolve it <qualifyHint><argHint>");
         s.report(msg);
     }
-    return filteredOverloads;
+    return filteredTypes;
 }
 
 void(Solver) makeVarInitRequirement(Variable var)
@@ -122,8 +130,8 @@ void(Solver) makeVarInitRequirement(Variable var)
             initialTypeU = instantiateRascalTypeParameters(var, initialTypeU, bindings, s);
             if(s.isFullyInstantiated(initialTypeU)){
                 if(overloadedAType(overloads) := initialTypeU){
-                    filteredOverloads = checkAndFilterOverloads(var.initial, overloads, varTypeU, s);
-                    for(<_, _, tp> <- filteredOverloads){
+                    types = checkAndFilterOverloadTypes(var.initial, overloads, varTypeU, s);
+                    for(tp <- types){
                         s.requireSubType(tp, varTypeU, error(var, "Initialization of %q should be subtype of %t, found overloaded type %t", "<var.name>", var.name, deUnique(initialTypeU)));
                     }
                 } else {
@@ -144,6 +152,8 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
     requireFullyInstantiated(s, t1);
 
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
+        // A void alternative would otherwise be silently dropped by the loop below
+        if(hasVoidAlternative(t1)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
             try {
@@ -162,6 +172,9 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
 AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, Solver s){
 
     requireFullyInstantiated(s, t1, t2);
+
+    // Checked before the overload loops below, since they would silently drop a void alternative
+    if(hasVoidAlternative(t1) || hasVoidAlternative(t2)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
 
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
@@ -188,13 +201,15 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
         return overloadedAType(bin_overloads);
     }
-    if(isVoidAType(t1) || isVoidAType(t2)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
     return computeType(current, t1, t2, s);
 }
 
 AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, AType t3, Solver s){
 
     requireFullyInstantiated(s, t1, t2, t3);
+
+    // Checked before the overload loops below, since they would silently drop a void alternative
+    if(hasVoidAlternative(t1) || hasVoidAlternative(t2) || hasVoidAlternative(t3)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
 
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         tern_overloads = {};
@@ -234,7 +249,6 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
     }
-    if(isVoidAType(t1) || isVoidAType(t2) || isVoidAType(t3)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
     return computeType(current, t1, t2, t3, s);
 }
 
@@ -332,7 +346,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     list[AType] parameters = [];
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := adtType){
        params = {};
-       for(<_, _, tp> <- overloads){
+       for(tp <- overloads<2>){
         if(isADTAType(tp)) params += toSet(getADTTypeParameters(tp));
        }
        parameters = toList(params);
@@ -460,7 +474,7 @@ list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), lo
 
 }
 
-list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <_, _, adt> <- overloads ];
+list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | adt <- overloads<2> ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
 
 public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope, Solver s) {
@@ -1261,19 +1275,18 @@ private bool acceptable(int i, AType a, AType b, list[bool] uninstantiated)
 
 tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, list[AType] argTypes, AType subjectType, Solver s){
     int arity = size(argTypes);
-    rel[loc, IdRole, AType] filteredOverloads = {};
+    set[AType] filteredTypes = {};
     list[bool] identicalFields = [true | int _ <- [0 .. arity]];
 
     uninstantiated = [ !s.isFullyInstantiated(argTypes[i]) | int i <- [0 .. arity] ];
 
-    for(ovl:<loc _, IdRole _, AType tp> <- overloads){
-        if(acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) := tp, comparable(ret, subjectType)){
-           if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i], uninstantiated)))){
-            filteredOverloads += ovl;
-           }
+    for(tp:acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) <- overloads<2>, comparable(ret, subjectType)) {
+        if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i], uninstantiated)))){
+            filteredTypes += tp;
         }
     }
-    return <filteredOverloads, identicalFields>;
+
+    return <filterOverloadsByAType(overloads, filteredTypes), identicalFields>;
 }
 
 AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Solver s, AType subjectType){

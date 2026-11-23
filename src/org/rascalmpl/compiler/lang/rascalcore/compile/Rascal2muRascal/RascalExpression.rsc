@@ -1807,7 +1807,6 @@ BTINFO getBTInfo(e:(Expression) `<Pattern pat> \<- <Expression exp>`, BTSCOPE bt
 MuExp translateGenerator(Expression current, Pattern pat, Expression exp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
     expType = getType(exp);
     elemType = getElementType(expType);
-    if(isVoidAType(elemType)) return falseCont;
 
     loc fuid = topFunctionScope();
     elem = muTmpIValue(nextTmp("elem"), fuid, elemType);

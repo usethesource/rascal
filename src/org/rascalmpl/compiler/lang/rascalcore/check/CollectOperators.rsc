@@ -48,7 +48,7 @@ void collect(current: (Expression) `<Expression e> is <Name n>`, Collector c){
 
 private AType do_computeIsType(Tree current, AType t1, Solver s){               // TODO: check that name exists
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
-        for(<_, _, tp> <- overloads){
+        for(tp <- overloads<2>){
            try return do_computeIsType(current, tp, s);
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
@@ -67,7 +67,7 @@ void collect(current: (Expression) `<Expression e> has <Name n>`, Collector c){
 
 private AType _computeHasType(Tree current, AType t1, Solver s){
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
-        for(<_, _, tp> <- overloads){
+        for(tp <- overloads<2>){
            try return _computeHasType(current, tp, s);
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
@@ -205,6 +205,7 @@ private AType do_computeSpliceType(Tree current, AType t1, Solver s){
 void collect(current: (Expression)`[ <Type t> ] <Expression e>`, Collector c){
     c.calculate("asType", current, [t, e],
         AType(Solver s) { 
+            checkNonVoid(e, s, "Argument of parse expression `[_] _`");
             if(!(s.subtype(e, astr()) || s.subtype(e, aloc()))) s.report(error(e, "Expected `str` or `loc`, instead found %t", e));
             return s.getType(t);
         });
@@ -649,7 +650,7 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
                     s.fact(pat, patType);
              }
              if(overloadedAType(rel[loc, IdRole, AType] overloads) := elmType){
-                for(<_, _, tp> <- overloads){
+                for(tp <- overloads<2>){
                     if(comparable(patType, tp)) return abool();
                 }
                 s.report(error(pat, "Pattern of type %t cannot be used to enumerate over %t", patType, exprType));
@@ -671,6 +672,8 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
      etype = s.instantiate(etype);
      
      if(overloadedAType(rel[loc, IdRole, AType] overloads) := etype){
+        // A void alternative would otherwise be silently dropped by the loop below
+        checkNonVoid(current, etype, s, "Enumerated expression");
         filtered_overloads = {};
         for(<key, role, tp> <- overloads){
             try {
@@ -696,7 +699,7 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
     } else if (isOptType(etype)) {
         return getOptType(etype);
     } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := etype){
-        for(<_, _, tp> <- overloads, isEnumeratorType(tp)){
+        for(tp <- overloads<2>, isEnumeratorType(tp)){
             try {
                 return computeEnumeratorElementType(current, tp, s);
             } catch checkFailed(list[FailMessage] _): /* do nothing and try next overload*/;
@@ -842,6 +845,7 @@ void collect(current: (Expression) `<Expression condition> ? <Expression thenExp
         
         c.calculate("if expression", current, [condition, thenExp, elseExp],
             AType(Solver s){
+                checkNonVoid(condition, s, "Condition in conditional expression");
                 s.requireComparable(abool(), condition, error(condition, "Condition should be `bool`, found %t", condition));
                 checkNonVoid(thenExp, s, "Then part in conditional expression");
                 checkNonVoid(elseExp, s, "Else part in conditional expression");

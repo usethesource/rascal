@@ -79,7 +79,7 @@ void translateDecl(d: (Declaration) `<Tags tags> <Visibility visibility> <Type t
    		addVariableToModule(muModuleVar(getType(tp), unescapedVarName));
    		if(var is initialized) {
    		   init_code =  translate(var.initial);
-   		   asg = muAssign( muVar(unescapedVarName, mid, -1, filterOverloads(getType(tp), {variableId()}), variableId()), init_code);
+   		   asg = muAssign( muVar(unescapedVarName, mid, -1, filterOverloadsByRole(getType(tp), {variableId()}), variableId()), init_code);
    		   addVariableInitializationToModule(asg);
    		}
    	}
@@ -245,7 +245,7 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       ttags =  translateTags(fd.tags);
       tmods = translateModifiers(fd.signature.modifiers);
 
-      if(hasIgnoreCompilerTag(ttags)){
+      if(ignoreForCompiler(ttags)){
         return;
       }
       inScope = topFunctionScope();
