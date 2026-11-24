@@ -332,7 +332,6 @@ public class JavaMethod extends NamedFunction {
 				  // this happens when Throw is created without a current AST location and a trace.
 				  loc = getAst().getLocation();
 				}
-				trace.add(loc, name);
 
 				th.setLocation(loc);
 				trace.addAll(eval.getStackTrace());
