@@ -152,7 +152,8 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
                     
                dependencyChanged = (mid != moduleId) && !isEmpty(ms.changedModules & range(ms.paths[mid]));
                //if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
-               <mchanged, ms> = isModuleModified(mid, timestampInBom, pathRole, ms);
+            //    <mchanged, ms> = isModuleModified(mid, timestampInBom, pathRole, ms);
+               mchanged = mid in ms.changedModules;
                if(dependencyChanged || mchanged){
                     allImportsAndExtendsValid = false;
                     ms = addProperty(mid, ms, rsc_changed());
