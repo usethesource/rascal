@@ -1,17 +1,14 @@
 # Rascal Developer Manual
 
-## Checking out the repository
+## Working with the repository
 
 The Rascal project makes use of Java code that is generated from Rascal modules.
 To avoid pollution of the Rascal repository itself, the generated code is not committed to this repository, but to a [separate repository](https://github.com/usethesource/rascal-generated-java).
 This secondary repository is "linked in" using Git's submodule system, in the `generated` directory in the root of the repository.
 
-To start working on Rascal, execute the following steps.
-1. Check out the Rascal repository (e.g., `git clone git@github.com:usethesource/rascal.git`).
-2. Initialize the submodule (`git submodule update --init`). The `generated` directory should now be filled.
+To start working on Rascal, check out the Rascal repository (`git clone --recurse-submodules git@github.com:usethesource/rascal.git`).
+Note: for existing (local) repositories, initialize the submodule through `git submodule update --init`.
 
-## Updating the submodule
-
-After an update of the submodule's commit pointer, `git pull` will (by default) not update the submodule directory.
-The output of `git diff` will contain an entry indicating `"new commits"` in `generated`.
-To update the directory, navigate to `generated` and run `git pull` from there.
+By default, `git` operations (such as `git pull`) will reel in changes to submodules, but will not actually alter the content of submodule directories.
+To bring the contents up to date, run `git submodule update` after a pull, or add the `--recurse-submodules` to `git pull`.
+To automate this, set the configuration option `submodule.recurse` to `true` for the Rascal project.
