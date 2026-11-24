@@ -36,6 +36,7 @@ import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -273,7 +274,7 @@ public class TraversalEvaluator {
 			// Constructor is "appl": we are dealing with a syntax tree
 			// - Lexical or literal are returned immediately
 
-			if (TreeAdapter.isLexical(tree)|| TreeAdapter.isLiteral(tree)){
+			if (TreeAdapter.isLexical(tree)|| TreeAdapter.isLiteral(tree) || TreeAdapter.isCILiteral(tree)){
 				return subject; // we dont traverse into the structure of literals, lexicals, and characters
 			}
 			
@@ -418,10 +419,11 @@ public class TraversalEvaluator {
 
 		if (tr.changed) {
 		  IConstructor rcons;
-		  
+		  QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
+
 		  try {
 		      assert args != null;
-		      QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
+			  // TODO: lookup the function in the current scope and memo it for during the visit, also its absence.
 		      rcons = (IConstructor) eval.call(n, kwParams != null ? kwParams : Collections.<String,IValue>emptyMap(), args);
 		  }
 		  catch (UndeclaredFunction | UndeclaredModule | ArgumentMismatch e) {
@@ -440,8 +442,8 @@ public class TraversalEvaluator {
 		    }
 		  }
 		  catch (MatchFailed e) {
-			  // this indicates that a nested rewrite has applied to replace a valid child with an invalid child
-			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), tf.tupleType(args), (AbstractAST) null);
+				// a rewrite was tried, but it failed for some reason, and so we stick with the old constructor (and the new parameters)
+				rcons = tr.changed ? eval.getValueFactory().constructor(cons.getUninstantiatedConstructorType(), args, kwParams) : cons;
 		  }
 
 		  if (memoize) {
