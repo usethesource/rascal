@@ -12,3 +12,7 @@ Note: for existing (local) repositories, initialize the submodule through `git s
 By default, `git` operations (such as `git pull`) will reel in changes to submodules, but will not actually alter the content of submodule directories.
 To bring the contents up to date, run `git submodule update` after a pull, or add the `--recurse-submodules` to `git pull`.
 To automate this, set the configuration option `submodule.recurse` to `true` for the Rascal project.
+
+## Updating the submodule
+
+Instructions for updating the submodule contents can be found in the `DEVELOPERS.md` in the `rascal-generated-java` project.
