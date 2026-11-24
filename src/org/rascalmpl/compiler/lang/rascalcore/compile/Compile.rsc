@@ -113,7 +113,7 @@ list[Message] compile1(MODID moduleId, lang::rascal::\syntax::Rascal::Module M, 
         if(compilerConfig.logWrittenFiles) println("Written: <testClassFile>"); 
     }
       
-    writeBinaryValueFile(constantsFile, <size(constants), md5Hash(constants), constants>);
+    writeBinaryValueFile(constantsFile, <size(constants), md5Hash(constants), constants>, optimizeSharing = true);
     if(compilerConfig.logWrittenFiles) println("Written: <constantsFile>"); 
            
     return tm.messages;
