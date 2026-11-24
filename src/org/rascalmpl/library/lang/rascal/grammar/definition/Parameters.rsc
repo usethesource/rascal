@@ -37,7 +37,7 @@ set[Production] expand(set[Production] prods) {
   
   instantiated = {};
   while (uses != {}) {
-    instances = {};
+    set[Production] instances = {};
     for (u <- uses, def <- defs, def.def.name == u.name) {
        name = u.name;
        actuals = u.parameters;
