@@ -253,12 +253,13 @@ tuple[bool,ModuleStatus] isModuleModified(MODID moduleId, datetime timestamp, Pa
                         return <true, ms>;
                     }
                  }
+                 ms.modified[moduleId] = false;
+                 return <false, ms>;
             }
+            ms.modified[moduleId] = false;
+            return <false, ms>;
         }
     } catch value _: {
-        return <false, ms>;
-    } finally {
-        ms.modified[moduleId] = false;
         return <false, ms>;
     }
 }
