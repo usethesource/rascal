@@ -155,7 +155,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
-		    if (__eval.__getTypeArgument() == TF.voidType()) {
+		    if (__eval.__getTypeArgument().isBottom()) {
 		        return TF.listType(TF.voidType());
 		    }
 		    
