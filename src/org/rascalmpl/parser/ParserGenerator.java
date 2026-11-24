@@ -69,8 +69,10 @@ public class ParserGenerator {
 	private final $Parameters parameters;
 	private final $Symbols symbols;
 
+	private final RascalExecutionContext rex;
+
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
-		var rex = new RascalExecutionContext(Reader.nullReader(), out, out, null, monitor instanceof IDEServices ? (IDEServices) monitor : null);
+		rex = new RascalExecutionContext(Reader.nullReader(), out, out, null, monitor instanceof IDEServices ? (IDEServices) monitor : null);
 		var ms = rex.getModuleStore();
 		parserGenerator = new $ParserGenerator(rex);
 		concreteSyntax = ms.getModule($ConcreteSyntax.class);
@@ -90,7 +92,7 @@ public class ParserGenerator {
 			String classString = thing.toString();
 			FileOutputStream s = null;
 			try {
-			    System.err.println("\nWriting " + kind + " to " + file);
+			    rex.getErrWriter().println("\nWriting " + kind + " to " + file);
 
 				s = new FileOutputStream(file);
 				s.write(classString.getBytes());
