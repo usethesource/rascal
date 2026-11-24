@@ -62,6 +62,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.UnexpectedChildTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -443,6 +444,18 @@ public class TraversalEvaluator {
 		  }
 		  catch (MatchFailed e) {
 				// a rewrite was tried, but it failed for some reason, and so we stick with the old constructor (and the new parameters)
+
+				// we have to type-check the new parameters now, in case we are making something broken.
+				var actualTypes = tf.tupleType(args);
+				var formalTypes = cons.getUninstantiatedConstructorType().getFieldTypes();
+				assert actualTypes.getArity() == formalTypes.getArity() : "by the above code the args array can't be different from the original args of the constructor";
+			
+				if (!actualTypes.match(formalTypes, new HashMap<>())) {
+					// TODO: another semantics would simply stick with the old argument if it did not fit
+					// and not bail out.
+					throw new UnexpectedChildTypeException(formalTypes, actualTypes);
+				}
+
 				rcons = tr.changed ? eval.getValueFactory().constructor(cons.getUninstantiatedConstructorType(), args, kwParams) : cons;
 		  }
 
