@@ -67,9 +67,9 @@ public java &T readTextValueString(type[&T] result, str input);
 Write any Rascal value to a binary file. Reading that file with ((readBinaryValueFile)) returns the same value.
 
 The default enabled `compression` parameter tries to maintain the same in-memory size as the original value.
-This should only in very rare cases be disabled.
+This should only be disabled in very rare cases.
 The `optimizeSharing` parameter further reduces the file (and thus memory) size by recognizing equal values and storing them only once.
-This should not be enabled for deeply recursive values such as parse trees or ASTs.
+This should not be enabled for deeply recursive values such as parse trees or ASTs, because computing sharing  for those is expensive.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeBinaryValueFile(loc file, value val, bool compression = true, bool optimizeSharing = false);
