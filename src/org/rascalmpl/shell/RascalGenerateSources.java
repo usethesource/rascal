@@ -14,6 +14,6 @@ public class RascalGenerateSources extends AbstractCommandlineTool {
 		var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
 		var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
 
-        System.exit(main("CompileParserGenerator", new String[] { "org/rascalmpl/compiler", "org/rascalmpl/typepal" }, args, term, monitor, err, out));
+        System.exit(main("RascalGenerateSources", new String[] { "org/rascalmpl/compiler", "org/rascalmpl/typepal" }, args, term, monitor, err, out));
     }
 }
