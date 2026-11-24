@@ -139,7 +139,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.integerType();
+						.rationalType();
 			}
 			throw new NonWellformedType("rat cannot have type arguments.",
 					this);
@@ -419,7 +419,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 		    if (__eval.__getTypeArgument().isBottom()) {
-                return TF.listType(TF.voidType());
+                return TF.setType(TF.voidType());
             }
 		    
 			if (__eval.__getTypeArgument().getArity() == 1) {
