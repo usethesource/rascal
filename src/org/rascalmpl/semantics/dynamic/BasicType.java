@@ -58,8 +58,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.boolType();
+				return TF.boolType();
 			}
 			throw new NonWellformedType(
 					"bool cannot have type arguments.", this);
@@ -85,8 +84,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.dateTimeType();
+				return TF.dateTimeType();
 			}
 			throw new NonWellformedType(
 					"datetime cannot have type arguments.", this);
@@ -110,8 +108,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.integerType();
+				return TF.integerType();
 			}
 			throw new NonWellformedType("int cannot have type arguments.",
 					this);
@@ -138,8 +135,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.rationalType();
+				return TF.rationalType();
 			}
 			throw new NonWellformedType("rat cannot have type arguments.",
 					this);
@@ -197,8 +193,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.sourceLocationType();
+				return TF.sourceLocationType();
 			}
 			throw new NonWellformedType("loc cannot have type arguments.",
 					this);
@@ -257,8 +252,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.nodeType();
+				return TF.nodeType();
 			}
 			throw new NonWellformedType(
 					"node cannot have type arguments.", this);
@@ -284,8 +278,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.numberType();
+				return TF.numberType();
 			}
 			throw new NonWellformedType("num cannot have type arguments.",
 					this);
@@ -311,8 +304,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.realType();
+				return TF.realType();
 			}
 			throw new NonWellformedType(
 					"real cannot have type arguments.", this);
@@ -335,15 +327,13 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
+			var rtf = org.rascalmpl.types.RascalTypeFactory.getInstance();
 		    if (__eval.__getTypeArgument().isBottom()) {
-                return org.rascalmpl.types.RascalTypeFactory
-                    .getInstance().reifiedType(TF.voidType());
+                return rtf.reifiedType(TF.voidType());
             }
 		    
 			if (__eval.__getTypeArgument().getArity() == 1) {
-				return org.rascalmpl.types.RascalTypeFactory
-						.getInstance().reifiedType(
-								__eval.__getTypeArgument().getFieldType(0));
+				return rtf.reifiedType(__eval.__getTypeArgument().getFieldType(0));
 			}
 			throw new NonWellformedType(
 					"type should have exactly one type argument, like type[value]",
@@ -369,8 +359,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
-			return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-					.relTypeFromTuple(__eval.__getTypeArgument());
+			return TF.relTypeFromTuple(__eval.__getTypeArgument());
 
 		}
 
@@ -394,8 +383,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
-			return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-					.lrelTypeFromTuple(__eval.__getTypeArgument());
+			return TF.lrelTypeFromTuple(__eval.__getTypeArgument());
 
 		}
 
@@ -423,8 +411,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
             }
 		    
 			if (__eval.__getTypeArgument().getArity() == 1) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.setType(__eval.__getTypeArgument().getFieldType(0));
+				return TF.setType(__eval.__getTypeArgument().getFieldType(0));
 			}
 			throw new NonWellformedType(
 					"set should have exactly one type argument, like set[value]",
@@ -452,8 +439,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.stringType();
+				return TF.stringType();
 			}
 			throw new NonWellformedType(
 					"string cannot have type arguments.", this);
@@ -502,8 +488,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.valueType();
+				return TF.valueType();
 			}
 			throw new NonWellformedType(
 					"value cannot have type arguments.", this);
@@ -527,8 +512,7 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 			if (__eval.__getTypeArgument().getArity() == 0) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.voidType();
+				return TF.voidType();
 			}
 			throw new NonWellformedType(
 					"void cannot have type arguments.", this);
