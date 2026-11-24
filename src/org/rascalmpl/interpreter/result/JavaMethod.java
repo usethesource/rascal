@@ -192,7 +192,7 @@ public class JavaMethod extends NamedFunction {
 			if (eval.getCallTracing()) {
 				eval.decCallNesting();
 			}
-			ctx.unwind(old);
+			ctx.setCurrentEnvt(old);
 		}
 	}
 
