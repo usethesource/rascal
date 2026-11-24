@@ -450,7 +450,7 @@ public class TraversalEvaluator {
 				var formalTypes = cons.getUninstantiatedConstructorType().getFieldTypes();
 				assert actualTypes.getArity() == formalTypes.getArity() : "by the above code the args array can't be different from the original args of the constructor";
 			
-				if (!actualTypes.match(formalTypes, new HashMap<>())) {
+				if (!formalTypes.match(actualTypes, new HashMap<>())) {
 					// TODO: another semantics would simply stick with the old argument if it did not fit
 					// and not bail out.
 					throw new UnexpectedChildTypeException(formalTypes, actualTypes);
