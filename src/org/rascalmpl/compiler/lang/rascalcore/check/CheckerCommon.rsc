@@ -99,7 +99,6 @@ data ModuleStatus =
       map[MODID,datetime] moduleLastModified,
       map[MODID, set[Message]] messages,
       map[MODID, set[ModuleProperty]] status,
-      map[MODID, bool] modified,
       PathConfig pathConfig,
       RascalCompilerConfig compilerConfig
    );
@@ -156,7 +155,7 @@ ModuleStatus moduleStatus(          // TEMPORARY FOR COMPATIBILITY BETWEEN VERSI
       = newModuleStatus(pathConfig, compilerConfig);
 
 ModuleStatus newModuleStatus(PathConfig pcfg, TypePalConfig tcfg)
-    = moduleStatus({}, (), [], (), [], {}, (), (), (), (), (), pcfg, tcfg);
+    = moduleStatus({}, (), [], (), [], {}, (), (), (), (), pcfg, tcfg);
 
 ModuleStatus newModuleStatus() 
     = newModuleStatus(pathConfig(), tconfig());
@@ -226,37 +225,25 @@ datetime getLastModified(MODID moduleId, ModuleStatus ms){
 tuple[bool,ModuleStatus] isModuleModified(MODID moduleId, datetime timestamp, PathRole pathRole, ModuleStatus ms){
     pcfg = ms.pathConfig;
     try {
+        mloc = getRascalModuleLocation(moduleId, ms);
+        bool modifiedChanged = lastModified(mloc) != timestamp;
         if(pathRole == importPath()){
-            // Assumption: no change of last-modified times within lifetime of ModuleStatus (i.e. single type-check run)
-            if (ms.modified[moduleId]?) {
-                return <ms.modified[moduleId], ms>;
-            }
-
-            mloc = getRascalModuleLocation(moduleId, ms);
-            bool modifiedChanged = lastModified(mloc) != timestamp;
-            ms.modified[moduleId] = modifiedChanged;
             return <modifiedChanged, ms>;
-        } else {
+        } else {    
             // extendPath
-
-            // Assumption: no change of last-modified times within lifetime of ModuleStatus (i.e. single type-check run)
-            if (ms.modified[moduleId]? && ms.modified[moduleId]) {
-                // We're modified; no need to check our imports.
-                return <true, ms>;
-            }
+            // TODO: in the case of deep extend chains this might become inefficient since we are
+            // yoyo-ing up and down through the extend chains.
+            // Potential solution: maintain set of changed modules in ModuleStatus
             <found, tm, ms> = getTModelForModule(moduleId, ms);
             if(found && tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
                  for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
                     <mchanged, ms> = isModuleModified(moduleName2moduleId(m), timestampInBom, pathRole, ms);
-                    if(mchanged) {
-                        ms.modified[moduleId] = true;
+                    if(mchanged){
                         return <true, ms>;
                     }
                  }
-                 ms.modified[moduleId] = false;
                  return <false, ms>;
             }
-            ms.modified[moduleId] = false;
             return <false, ms>;
         }
     } catch value _: {
