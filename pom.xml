@@ -33,6 +33,8 @@
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
         <rascal-maven.version>0.32.2</rascal-maven.version>
+        <typepal.version>0.17.4</typepal.version>
+        <rascal-maven.bootstrap.version>0.43.2</rascal-maven.bootstrap.version>
         <jline.version>3.29.0</jline.version> <!-- do not upgrade unless https://github.com/jline/jline3/issues/1445 is solved-->
     </properties>
 
@@ -128,7 +130,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.43.2</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>${rascal-maven.bootstrap.version}</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
@@ -143,6 +145,8 @@
                         </goals>
                         <configuration>
                             <parallel>true</parallel>
+                            <parallelMax>4</parallelMax> <!-- if we want to run it at more cores, also increase the memory -->
+                            <memory>4G</memory>
                             <parallelPreChecks>
                                <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
                             </parallelPreChecks>
@@ -473,7 +477,7 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
-            <version>0.17.4</version>
+            <version>${typepal.version}</version>
            <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
            <scope>compile</scope>
         </dependency>
@@ -617,6 +621,13 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.rascalmpl</groupId>
+                        <artifactId>rascal-maven-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration> 
+                    </plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <executions>
@@ -642,6 +653,90 @@
                             </includes>
                         </configuration>
                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>compiler-typecheck</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.rascalmpl</groupId>
+                        <artifactId>rascal-maven-plugin</artifactId>
+                        <configuration>
+                            <bootstrapRascalVersion>${rascal-maven.bootstrap.version}</bootstrapRascalVersion>
+                        </configuration> 
+                        <executions>
+                            <execution>
+                                <id>default-compile</id>
+                                <phase>none</phase> <!-- disable everything from the normal config-->
+                            </execution>
+                            <execution>
+                                <id>default-resources</id>
+                                <phase>none</phase> <!-- disable everything from the normal config-->
+                            </execution>
+                            <execution>
+                                <id>typechecker-compile</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                                <configuration>
+                                    <parallel>true</parallel>
+                                    <parallelMax>4</parallelMax>
+                                    <memory>6G</memory>
+                                    <parallelPreChecks>
+                                        <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
+                                        <pre>${project.basedir}/src/org/rascalmpl/compiler/lang/rascalcore/check/CheckerCommon.rsc</pre>
+                                    </parallelPreChecks>
+                                    <errorsAsWarnings>false</errorsAsWarnings> 
+                                    <bin>${project.build.outputDirectory}</bin>
+                                    <srcs>
+                                        <src>${project.basedir}/src/org/rascalmpl/library</src>
+                                        <src>${project.basedir}/src/org/rascalmpl/compiler</src>
+                                        <src>${project.build.directory}/typepal/src</src>
+                                    </srcs>
+                                    <libs></libs> <!-- do not use path config to get the libs-->
+                                    <ignores>
+                                        <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
+                                        <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
+                                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
+                                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
+                                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
+                                        <ignore>${project.build.directory}/typepal/src/examples</ignore>
+                                    </ignores>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                      <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-dependency-plugin</artifactId>
+                            <version>3.11.0</version>
+                            <executions>
+                                <execution>
+                                    <id>unpack</id>
+                                    <phase>generate-sources</phase>
+                                    <goals>
+                                        <goal>unpack</goal>
+                                    </goals>
+                                    <configuration>
+                                        <artifactItems>
+                                            <artifactItem>
+                                                <groupId>org.rascalmpl</groupId>
+                                                <artifactId>typepal</artifactId>
+                                                <version>${typepal.version}</version>
+                                                <includes>
+                                                    src/**/*.rsc
+                                                </includes>
+                                                <outputDirectory>${project.build.directory}/typepal</outputDirectory>
+                                            </artifactItem>
+                                        </artifactItems>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
                 </plugins>
             </build>
         </profile>
