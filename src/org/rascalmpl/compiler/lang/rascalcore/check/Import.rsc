@@ -133,6 +133,23 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
     }
     ms = addProperty(moduleId, ms, module_dependencies_extracted());
 
+    bool isModuleModified(str m, datetime timestampInBom, PathRole pathRole) {
+        mid = moduleName2moduleId(m);
+        try {
+            srcsFile(m, pcfg, fileConfig());
+            return mid in ms.changedModules; // We already know about all changed source files
+        } catch _: {
+            try {
+                libsFile(m, pcfg, fileConfig());
+                <changed, ms> = isModuleModified(mid, timestampInBom, pathRole, ms);
+                return changed == true; // workaround `value` type from tuple deconstruction
+            } catch _: {
+                println("Cannot find location of module <m>. Assuming it changed.");
+                return true;
+            }
+        }
+    }
+
     try {
       <found, tm, ms> = getTModelForModule(moduleId, ms);
       if(found){
@@ -149,11 +166,11 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
                if(mid != moduleId){
                     localImportsAndExtends += <mid, pathRole>;
                }
-                    
+
+               mchanged = isModuleModified(m, timestampInBom, pathRole);
                dependencyChanged = (mid != moduleId) && !isEmpty(ms.changedModules & range(ms.paths[mid]));
                //if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
-            //    <mchanged, ms> = isModuleModified(mid, timestampInBom, pathRole, ms);
-               mchanged = mid in ms.changedModules;
+
                if(dependencyChanged || mchanged){
                     allImportsAndExtendsValid = false;
                     ms = addProperty(mid, ms, rsc_changed());
