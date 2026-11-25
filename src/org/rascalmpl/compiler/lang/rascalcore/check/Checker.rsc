@@ -425,20 +425,42 @@ bool usesOrExtendsADT(str modulePath, str importPath, rel[str, AType] factsByPat
 
 tuple[set[MODID], ModuleStatus] loadImportsAndExtends(set[MODID] moduleIds, ModuleStatus ms, Collector c, set[MODID] added){
     pcfg = ms.pathConfig;
+    
+    // Gather TModels to be added
+    map[loc, TModel] tms = (); // Keys of this map should be logical locations of the form `|rascal+module:///...|`
     for(<from, pathRole, imp> <- ms.paths, from in moduleIds){
-        if(imp notin added, imp notin moduleIds){
+        if(imp notin added, imp notin moduleIds, imp notin tms){
             if(hasProperty(imp, ms, tpl_uptodate())){
-                added += imp;
                 <found, tm, ms> = getTModelForModule(imp, ms);
-                try {
-                    if(pathRole == importPath()){
-                        tm.defines = {d | d <- tm.defines, d.idRole == moduleVariableId() ==> d.defInfo.vis == publicVis() };
-                    }
-                    c.addTModel(tm);
-                } catch wrongTplVersion(str reason): {
-                    ms.messages[imp] ? {} += { Message::error(reason, ms.moduleLocs[imp]) };
+                if(pathRole == importPath()){
+                    tm.defines = {d | d <- tm.defines, d.idRole == moduleVariableId() ==> d.defInfo.vis == publicVis() };
                 }
+                tms += (imp: tm);
             }
+        }
+    }
+
+    // Sort TModels. This is a workaround for #2934. The key observation is that merging of TModels using `c.addTModel`
+    // isn't commutative (because map union isn't, and the maps involved don't necessarily have disjoint keys). As a
+    // result, some orders in which TModels are merged cause problems (e.g., #2934), while other orders are harmless.
+    //
+    // The sorting below computes a harmless order of TModels by sorting all imported modules based on a "knowledge
+    // graph" among their TModels. Specifically, the TModel of module `A` "has knowledge about" the TModel of module `B`
+    // when the TModel of `A` knows how to map logical locations of `B` to physical locations. (The whole issue is that
+    // this knowledge may be wrong when `A` was typechecked against a different version of `B` than the version used in
+    // the current typecheck.) The TModel of `A` will be added first, including any `logical2physical` mappings of `B`
+    // it knows about. The TModel of `B` will be added second, overwriting the `logical2physical` mappings of `B`
+    // (necessarily right) that `A` previously contributed (possibly wrong).
+    rel[loc, loc] graph = {<from, to> | loc from <- tms, loc to <- tms, from != to, to in tms[from].logical2physical};
+    list[loc] toBeAdded = order(graph) + [l | loc l <- tms, /l !:= graph];
+
+    // Add TModels
+    for (loc l <- toBeAdded) {
+        try {
+            c.addTModel(tms[l]);
+            added += l; // Only when `addTModel` doesn't throw
+        } catch wrongTplVersion(str reason): {
+            ms.messages[l] ? {} += { Message::error(reason, ms.moduleLocs[l]) };
         }
     }
     return <added, ms>;
