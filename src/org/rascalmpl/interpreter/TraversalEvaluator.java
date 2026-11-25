@@ -58,6 +58,7 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
@@ -449,11 +450,19 @@ public class TraversalEvaluator {
 				var actualTypes = tf.tupleType(args);
 				var formalTypes = cons.getUninstantiatedConstructorType().getFieldTypes();
 				assert actualTypes.getArity() == formalTypes.getArity() : "by the above code the args array can't be different from the original args of the constructor";
-			
-				if (!formalTypes.match(actualTypes, new HashMap<>())) {
-					// TODO: another semantics would simply stick with the old argument if it did not fit
-					// and not bail out.
-					throw new UnexpectedChildTypeException(formalTypes, actualTypes);
+
+				// we revert to an old argument if the new argument does not fit the old constructor declaration
+				// hereby preventing dynamically that no type-incorrect node can ever be constructed.
+				var bindings = new HashMap<Type, Type>();
+				var src = eval.getCurrentAST().getLocation();
+				for (int i = 0; i < args.length; i++) {
+					var formal = formalTypes.getFieldType(i);
+					var actual = actualTypes.getFieldType(i);
+
+					if (!formal.match(actual, bindings)) {
+						eval.warning("A visited child of " + cons.getUninstantiatedConstructorType() + " was reverted. Does not fit argument " + i + ": " + actual + " is not a " + formal , src);
+						args[i] = cons.get(i);
+					}
 				}
 
 				rcons = tr.changed ? eval.getValueFactory().constructor(cons.getUninstantiatedConstructorType(), args, kwParams) : cons;
