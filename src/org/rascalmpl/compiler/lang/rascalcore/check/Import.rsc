@@ -133,7 +133,7 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
     }
     ms = addProperty(moduleId, ms, module_dependencies_extracted());
 
-    bool isModuleModified(str m, datetime timestampInBom, PathRole pathRole) {
+    bool isModified(str m, datetime timestampInBom, PathRole pathRole) {
         mid = moduleName2moduleId(m);
         try {
             srcsFile(m, pcfg, fileConfig());
@@ -167,7 +167,7 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
                     localImportsAndExtends += <mid, pathRole>;
                }
 
-               mchanged = isModuleModified(m, timestampInBom, pathRole);
+               mchanged = isModified(m, timestampInBom, pathRole);
                dependencyChanged = (mid != moduleId) && !isEmpty(ms.changedModules & range(ms.paths[mid]));
                //if(dependencyChanged) println("processing BOM of <qualifiedModuleName> and consider <m>, dependencyChanged: <dependencyChanged>");
 
