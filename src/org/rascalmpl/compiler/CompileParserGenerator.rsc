@@ -30,23 +30,24 @@ import IO;
 import lang::rascalcore::compile::Compile;
 
 @synopsis{Compile the parser generator including all needed library modules}
-void main(loc REPO     = |file:///Users/paulklint/git/|, 
-          loc COMPILED = REPO + "compiled-rascal"){
+void main(loc rascalRepo = |project://rascal|, 
+          loc generatedDir = rascalRepo + "generated",
+          loc license = |memory:///LICENSE|){
 
     pcfg = pathConfig(
-        srcs                   = [ REPO + "rascal/src/org/rascalmpl/library",
-                                   REPO + "rascal/test/org/rascalmpl/benchmark/",
-                                   REPO + "rascal/src/org/rascalmpl/compiler",
-                                   REPO + "rascal/src/org/rascalmpl/tutor"],
-        bin                    = COMPILED + "/target/classes",
-        generatedSources       = COMPILED + "/src/main/java",
-        generatedTestSources   = COMPILED + "/src/test/java/",
-        generatedResources     = COMPILED + "/src/main/java",
-        generatedTestResources = COMPILED + "/src/test/java/",
+        srcs                   = [ rascalRepo + "src/org/rascalmpl/library",
+                                   rascalRepo + "test/org/rascalmpl/benchmark/",
+                                   rascalRepo + "src/org/rascalmpl/compiler",
+                                   rascalRepo + "src/org/rascalmpl/tutor"],
+        bin                    = generatedDir + "/target/classes",
+        generatedSources       = generatedDir + "/src/main/java",
+        generatedTestSources   = generatedDir + "/src/test/java/",
+        generatedResources     = generatedDir + "/src/main/java",
+        generatedTestResources = generatedDir + "/src/test/java/",
         libs                   = [ ]
-    ); 
+    );
 
-    ccfg = rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
+    ccfg = rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true][license=license];
     msgs = compile(["lang::rascal::grammar::ParserGenerator"], ccfg);
     if(isEmpty(msgs)){
         println("ok");

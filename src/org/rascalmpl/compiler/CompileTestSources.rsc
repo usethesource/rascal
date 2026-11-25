@@ -54,7 +54,7 @@ void compileTestSources(PathConfig pcfg) {
    testCompilerConfig = getAllSrcCompilerConfig()[logPathConfig=false];
    total = 0;
 
-   println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
+   println(readFile(|project://rascal/META-INF/MANIFEST.MF|));
 
    libraryModules = ["Boolean", 
                      "DateTime", 
