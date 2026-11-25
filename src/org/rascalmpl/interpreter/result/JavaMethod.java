@@ -155,9 +155,10 @@ public class JavaMethod extends NamedFunction {
 		Environment old = ctx.getCurrentEnvt();
 
 		try {
-			ctx.pushEnv(getName());
+			var currentAST = ctx.getCurrentAST();
+			var env = new Environment(getEnv(), old, currentAST != null ? currentAST.getLocation() : null, getAst().getLocation(), name, true);
+			ctx.setCurrentEnvt(env);
 			ctx.setCurrentAST(getAst()); // otherwise it becomes the final parameter of the call site
-			Environment env = ctx.getCurrentEnvt();
 			Map<Type, Type> renamings = Collections.emptyMap();
 
 			if (formals.isOpen() || anyOpen(actualStaticTypes)) {
@@ -191,7 +192,7 @@ public class JavaMethod extends NamedFunction {
 			if (eval.getCallTracing()) {
 				eval.decCallNesting();
 			}
-			ctx.unwind(old);
+			ctx.setCurrentEnvt(old);
 		}
 	}
 
@@ -331,7 +332,6 @@ public class JavaMethod extends NamedFunction {
 				  // this happens when Throw is created without a current AST location and a trace.
 				  loc = getAst().getLocation();
 				}
-				trace.add(loc, name);
 
 				th.setLocation(loc);
 				trace.addAll(eval.getStackTrace());
