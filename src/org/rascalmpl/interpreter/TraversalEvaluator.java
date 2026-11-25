@@ -36,6 +36,7 @@ import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -57,10 +58,12 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.UnexpectedChildTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -273,7 +276,7 @@ public class TraversalEvaluator {
 			// Constructor is "appl": we are dealing with a syntax tree
 			// - Lexical or literal are returned immediately
 
-			if (TreeAdapter.isLexical(tree)|| TreeAdapter.isLiteral(tree)){
+			if (TreeAdapter.isLexical(tree)|| TreeAdapter.isLiteral(tree) || TreeAdapter.isCILiteral(tree)){
 				return subject; // we dont traverse into the structure of literals, lexicals, and characters
 			}
 			
@@ -418,10 +421,11 @@ public class TraversalEvaluator {
 
 		if (tr.changed) {
 		  IConstructor rcons;
-		  
+		  QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
+
 		  try {
 		      assert args != null;
-		      QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
+			  // TODO: lookup the function in the current scope and memo it for during the visit, also its absence.
 		      rcons = (IConstructor) eval.call(n, kwParams != null ? kwParams : Collections.<String,IValue>emptyMap(), args);
 		  }
 		  catch (UndeclaredFunction | UndeclaredModule | ArgumentMismatch e) {
@@ -440,8 +444,28 @@ public class TraversalEvaluator {
 		    }
 		  }
 		  catch (MatchFailed e) {
-			  // this indicates that a nested rewrite has applied to replace a valid child with an invalid child
-			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), tf.tupleType(args), (AbstractAST) null);
+				// a rewrite was tried, but it failed for some reason, and so we stick with the old constructor (and the new parameters)
+
+				// we have to type-check the new parameters now, in case we are making something broken.
+				var actualTypes = tf.tupleType(args);
+				var formalTypes = cons.getUninstantiatedConstructorType().getFieldTypes();
+				assert actualTypes.getArity() == formalTypes.getArity() : "by the above code the args array can't be different from the original args of the constructor";
+
+				// we revert to an old argument if the new argument does not fit the old constructor declaration
+				// hereby preventing dynamically that no type-incorrect node can ever be constructed.
+				var bindings = new HashMap<Type, Type>();
+				var src = eval.getCurrentAST().getLocation();
+				for (int i = 0; i < args.length; i++) {
+					var formal = formalTypes.getFieldType(i);
+					var actual = actualTypes.getFieldType(i);
+
+					if (!formal.match(actual, bindings)) {
+						eval.warning("A visited child of " + cons.getUninstantiatedConstructorType() + " was reverted. Does not fit argument " + i + ": " + actual + " is not a " + formal , src);
+						args[i] = cons.get(i);
+					}
+				}
+
+				rcons = tr.changed ? eval.getValueFactory().constructor(cons.getUninstantiatedConstructorType(), args, kwParams) : cons;
 		  }
 
 		  if (memoize) {
