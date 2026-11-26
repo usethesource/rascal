@@ -96,6 +96,7 @@ loc writeModule(str moduleText, str altName="", str altPath=""){
 	mname = replaceAll(mname, "::", "/");
     mloc = testModulesRoot +  altPath + "<cleanName(mname)>.rsc";
     writeFile(mloc, moduleText);
+    parseModuleWithSpaces(mloc);
     return mloc;
 }
 

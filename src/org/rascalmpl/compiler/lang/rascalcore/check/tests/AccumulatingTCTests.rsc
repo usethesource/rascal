@@ -41,7 +41,7 @@ test bool AppendHasLexicalScopingClosure() =
     illegalUseInModule("
         module AppendHasLexicalScopingClosure
             void main() {
-                f = () { append 3; }; 
+                f = void () { append 3; };
                 for (x \<- [1,2,3]) { f(); }
             }
     ");
