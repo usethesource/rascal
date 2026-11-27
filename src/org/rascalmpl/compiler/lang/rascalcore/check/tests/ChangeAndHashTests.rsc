@@ -282,10 +282,10 @@ test bool nearClonesDifferentParameterNameOK() = checkModuleOK("
 // Data declarations
 
 test bool commonKwFieldAdded()
-    = expectEqual("data D;", "data D(int x = 0);");
+    = expectSubset("data D;", "data D(int x = 0);");
 
-test bool commenKwFieldDeleted()
-    = expectEqual("data D(int x = 0);", "data D;");
+test bool commonKwFieldDeleted()
+    = expectSuperset("data D(int x = 0);", "data D;");
 
 test bool consAdded()
     = expectSubset("data D;", "data D = d(int n);");
