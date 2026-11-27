@@ -1185,6 +1185,7 @@ public class Prelude {
 		}
 	}
 
+	/** read the full reader, but does not close it, caller is responsible for this */
 	public static String consumeInputStream(Reader in) throws IOException {
 		StringBuilder res = new StringBuilder();
 		char[] chunk = new char[FILE_BUFFER_SIZE];
@@ -1195,6 +1196,7 @@ public class Prelude {
 		return res.toString();
 	}
 
+	/** read the full inputstream, but does not close it, caller is responsible for this */
 	public static byte[] consumeInputStream(InputStream in) throws IOException {
 		ByteArrayOutputStream res = new ByteArrayOutputStream();
 		byte[] chunk = new byte[FILE_BUFFER_SIZE];
