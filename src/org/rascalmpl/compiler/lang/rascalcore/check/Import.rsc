@@ -141,8 +141,8 @@ ModuleStatus getImportAndExtendGraph(MODID moduleId, ModuleStatus ms){
         } catch _: {
             try {
                 libsFile(m, pcfg, fileConfig());
-                <changed, ms> = isModuleModified(mid, timestampInBom, pathRole, ms);
-                return changed == true; // workaround `value` type from tuple deconstruction
+                <mchanged, ms> = isModuleModified(mid, timestampInBom, pathRole, ms);
+                return mchanged == true; // workaround `value` type from tuple deconstruction
             } catch _: {
                 println("Cannot find location of module <m>. Assuming it changed.");
                 return true;
