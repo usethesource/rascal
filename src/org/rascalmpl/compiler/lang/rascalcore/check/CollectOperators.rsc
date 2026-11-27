@@ -656,6 +656,9 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
                 s.report(error(pat, "Pattern of type %t cannot be used to enumerate over %t", patType, exprType));
             } 
             s.requireComparable(patType, elmType, error(pat, "Pattern of type %t cannot be used to enumerate over %t", patType, exprType));
+            if(pat is descendant)
+                s.report(warning(current, "Consider using `:=` instead of `\<-` when using descendant match (`/`)"));
+            
             return abool();
            });
     
