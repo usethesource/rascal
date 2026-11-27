@@ -39,6 +39,7 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
@@ -315,7 +316,6 @@ public class NonTerminalType extends RascalType {
 	protected Type glbWithConstructor(Type type) {
 	  return TF.voidType();
 	}
-
 	
 	@Override
 	protected boolean isSupertypeOf(Type type) {
@@ -325,6 +325,7 @@ public class NonTerminalType extends RascalType {
 	  
 	  return super.isSupertypeOf(type);
 	}
+
 	
 	@Override
 	protected boolean isSupertypeOf(RascalType type) {
@@ -534,5 +535,38 @@ public class NonTerminalType extends RascalType {
 	    
 	    // TODO: this generates an on-the-fly nullable production and returns a tree for that rule
 	    return rvf.appl(vf.constructor(RascalValueFactory.Production_Default, symbol, vf.list(), vf.set()), vf.list());
+	}
+
+	@Override
+	public Type instantiate(Map<Type, Type> bindings) {
+		return RTF.nonTerminalType(SymbolAdapter.instantiate(symbol, bindings));
+	}
+
+	@Override
+	public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+		// return matched.isSubtypeOf(this);
+		if (matched.isSubtypeOf(TypeFactory.getInstance().voidType())) {
+			// this is a common fast path otherwise handled by the else case down here
+			return true;
+
+		}
+		else if (matched instanceof NonTerminalType) {
+			// we have to implement this on the symbol level since we do not have separate types
+			// for every different kind of non-terminal (regular symbols, literals, etc)
+			return SymbolAdapter.match(symbol, ((NonTerminalType) matched).symbol, bindings);
+		}
+		else {
+			IRascalValueFactory vf = IRascalValueFactory.getInstance();
+			// here we lift the other types to symbols, such that they can be compared.
+			// this is mainly necessary for the different kinds of parametrized sorts and
+			// how they match against the ADT names and parameters.
+			
+			return SymbolAdapter.match(symbol, matched.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>()), bindings);
+		}
+	}
+
+	@Override
+	public boolean isOpen() {
+		return SymbolAdapter.isOpen(symbol);
 	}
 }
