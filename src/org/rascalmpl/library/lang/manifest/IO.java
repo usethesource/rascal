@@ -20,8 +20,8 @@ public class IO {
 	}
 	
 	public IMap readManifest(ISourceLocation input) {
-		try {
-			Manifest mf = new Manifest(URIResolverRegistry.getInstance().getInputStream(input));
+		try (var contents = URIResolverRegistry.getInstance().getInputStream(input)) {
+			Manifest mf = new Manifest(contents);
 			IMapWriter m = vf.mapWriter();
 			for (Entry<Object, Object> e : mf.getMainAttributes().entrySet()) {
 				m.put(vf.string(((Name) e.getKey()).toString()), vf.string((String) e.getValue()));

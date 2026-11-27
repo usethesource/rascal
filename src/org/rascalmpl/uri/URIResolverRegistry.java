@@ -963,8 +963,8 @@ public class URIResolverRegistry {
 			var file = URIUtil.getChildLocation(root, qualifiedClassName.replaceAll("\\.", "/") + ".class");
 
 			if (exists(file)) {
-				try {
-					byte[] bytes = Prelude.consumeInputStream(getInputStream(file));
+				try (var classContents = getInputStream(file)) {
+					byte[] bytes = Prelude.consumeInputStream(classContents);
 					return defineClass(qualifiedClassName, bytes, 0, bytes.length);
 				}
 				catch (IOException e) {
