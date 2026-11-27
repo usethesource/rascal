@@ -47,8 +47,8 @@ public class MavenMessages {
 
     private static ColumnMaps initColumnMaps() {
         return new ColumnMaps(loc -> {
-            try (var contents = URIResolverRegistry.getInstance().getCharacterReader(loc.top())) {
-                return Prelude.consumeInputStream(contents);
+            try (var content = URIResolverRegistry.getInstance().getCharacterReader(loc.top())) {
+                return Prelude.consumeInputStream(content);
             }
         });
     }

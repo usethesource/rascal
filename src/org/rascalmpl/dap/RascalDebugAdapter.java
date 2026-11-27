@@ -125,8 +125,8 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         debugHandler.setEvaluator(evaluator);
 
         columns = new ColumnMaps(l -> {
-            try (var contents = URIResolverRegistry.getInstance().getCharacterReader(l.top())) {
-                return Prelude.consumeInputStream(contents);
+            try (var content = URIResolverRegistry.getInstance().getCharacterReader(l.top())) {
+                return Prelude.consumeInputStream(content);
             }
             catch (IOException e) {
                 services.warning("Could not read contents of " + l.top(), l);
@@ -787,4 +787,3 @@ public class RascalDebugAdapter implements IDebugProtocolServer {
         }, ownExecutor);
     }
 }
-

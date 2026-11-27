@@ -316,11 +316,11 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
 
-        try (var parserContents = URIResolverRegistry.getInstance().getInputStream(saveLocation)) {
+        try (var parserClassBytes = URIResolverRegistry.getInstance().getInputStream(saveLocation)) {
             @SuppressWarnings({"unchecked"})
             final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
                 = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
-                    .__getJavaBridge().loadClass(parserContents);
+                    .__getJavaBridge().loadClass(parserClassBytes);
             
             AbstractAST current = ctx.getCurrentAST();
             ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
@@ -348,11 +348,11 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
       
-        try (var classBytes = URIResolverRegistry.getInstance().getInputStream(saveLocation)) {
+        try (var parserClassBytes = URIResolverRegistry.getInstance().getInputStream(saveLocation)) {
             @SuppressWarnings({"unchecked"})
             final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
                 = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
-                    .__getJavaBridge().loadClass(classBytes);
+                    .__getJavaBridge().loadClass(parserClassBytes);
             
             AbstractAST current = ctx.getCurrentAST();
             ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
