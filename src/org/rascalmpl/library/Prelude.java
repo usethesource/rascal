@@ -2571,7 +2571,7 @@ public class Prelude {
 		
 		if (TreeAdapter.isLexical(tree)) {
 			java.lang.String constructorName = unescapedConsName(tree);
-			java.lang.String yield = TreeAdapter.yield(tree);
+			java.lang.String yielded = TreeAdapter.yield(tree);
 			if (constructorName != null) {
 				// make a single argument constructor  with yield as argument
 				// if there is a singleton constructor with a str argument
@@ -2580,7 +2580,7 @@ public class Prelude {
 				}
 				
 				if (isUntypedNodeType(type)) {
-					return values.node(constructorName, values.string(yield));
+					return values.node(constructorName, values.string(yielded));
 				}
 				
 				Set<Type> conses = findConstructors(type, constructorName, 1, store);
@@ -2590,7 +2590,7 @@ public class Prelude {
 						@SuppressWarnings("unused")
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
-						IConstructor ast = makeConstructor(store, type, constructorName, values.string(yield));
+						IConstructor ast = makeConstructor(store, type, constructorName, values.string(yielded));
 						String locLabel = store.getKeywordParameterType(type, "location") == TypeFactory.getInstance().sourceLocationType() ?
 						  "location" : "src";
 						
@@ -2605,23 +2605,23 @@ public class Prelude {
 				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot find a matching constructor " + constructorName + " for lexical type " + type));
 			}
 			if (type.isInteger()) {
-				return values.integer(yield);
+				return values.integer(yielded);
 			}
 			if (type.isReal()) {
-				return values.real(yield);
+				return values.real(yielded);
 			}
 			if (type.isBool()) {
-				if (yield.equals("true")) {
+				if (yielded.equals("true")) {
 					return values.bool(true);
 				}
-				if (yield.equals("false")) {
+				if (yielded.equals("false")) {
 					return values.bool(false);
 				}
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Bool type does not match with " + yield));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Bool type does not match with " + yielded));
 			}
 			if (type.isString() || isUntypedNodeType(type)) {
 				// NB: in "node space" all lexicals become strings
-				return values.string(yield);
+				return values.string(yielded);
 			}
 			
 			throw RuntimeExceptionFactory.illegalArgument(tree, "Missing lexical constructor");
