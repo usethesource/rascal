@@ -34,6 +34,15 @@ import util::Reflective;
 import Location;
 import String;
 
+// TODO:
+// This is a temporary workaround due to a bug (#2972, #2993) in the type-check feature of `visit` in the interpreter.
+// The packager should have work correctly without this import statement.
+// TModels in TPL files can contain `FileSystemChange` values, which are traversed and modified by a visit expression in
+// this module (function `rewriteTypeModel`). The following import makes sure that the necessary `FileSystemChange`
+// constructors are visible; without it, an `UnexpectedType` error is thrown by the type-checking part of the `visit` statement. 
+// Once #2972 and #2993 are resolved, this import can be removed again.
+import analysis::diff::edits::TextEdits;
+
 void main(PathConfig pcfg = pathConfig(), loc sourceLookup = |unknown:///|, loc relocatedClasses = pcfg.projectRoot + "/target/relocatedClasses") {
     if (!(sourceLookup?)) {
       throw "sourceLookup is not an optional parameter. The packager needs something like `|mvn://groupId--artifactId--version|`";
@@ -84,7 +93,7 @@ void rewriteTypeFiles(list[loc] srcs, loc bin, loc relocated, loc sourceLookup) 
     for (loc file <- find(bin, "tpl")) {
         model = readBinaryValueFile(file);
         model = rewriteTypeModel(model, paths(srcs), sourceLookup);
-        writeBinaryValueFile(relocated + relativize(bin, file).path, model);
+        writeBinaryValueFile(relocated + relativize(bin, file).path, model, optimizeSharing = true);
     }
 }
 
