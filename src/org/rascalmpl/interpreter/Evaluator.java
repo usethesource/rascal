@@ -1401,20 +1401,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private char[] getResourceContent(ISourceLocation location) throws IOException{
-        char[] data;
-        Reader textStream = null;
-
-        try {
-            textStream = resolverRegistry.getCharacterReader(location);
-            data = InputConverter.toChar(textStream);
+        try (var textStream = resolverRegistry.getCharacterReader(location)) {
+            return InputConverter.toChar(textStream);
         }
-        finally{
-            if(textStream != null){
-                textStream.close();
-            }
-        }
-
-        return data;
     }
 
     /**

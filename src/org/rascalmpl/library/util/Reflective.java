@@ -231,21 +231,9 @@ public class Reflective {
 	  }
 	
 	protected static char[] getResourceContent(ISourceLocation location) throws IOException{
-		char[] data;
-		Reader textStream = null;
-		
-		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
-		try {
-			textStream = resolverRegistry.getCharacterReader(location);
-			data = InputConverter.toChar(textStream);
+		try (var textStream = URIResolverRegistry.getInstance().getCharacterReader(location)) {
+			return InputConverter.toChar(textStream);
 		}
-		finally{
-			if(textStream != null){
-				textStream.close();
-			}
-		}
-		
-		return data;
 	}
 	
 	public static ITree parseModuleWithSpaces(ISourceLocation loc) {

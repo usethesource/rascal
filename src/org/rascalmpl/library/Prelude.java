@@ -1185,6 +1185,7 @@ public class Prelude {
 		}
 	}
 
+	/** read the full reader, but does not close it, caller is responsible for this */
 	public static String consumeInputStream(Reader in) throws IOException {
 		StringBuilder res = new StringBuilder();
 		char[] chunk = new char[FILE_BUFFER_SIZE];
@@ -1195,6 +1196,7 @@ public class Prelude {
 		return res.toString();
 	}
 
+	/** read the full inputstream, but does not close it, caller is responsible for this */
 	public static byte[] consumeInputStream(InputStream in) throws IOException {
 		ByteArrayOutputStream res = new ByteArrayOutputStream();
 		byte[] chunk = new byte[FILE_BUFFER_SIZE];
@@ -3666,27 +3668,11 @@ public class Prelude {
 	 */
 	
 	public IInteger getFileLength(ISourceLocation g) {
-		if (g.getScheme().equals("file")) {
-			File f = new File(g.getURI());
-			if (!f.exists() || f.isDirectory()) { 
-				throw RuntimeExceptionFactory.io(values.string(g.toString()));
-			}
-			
-			return values.integer(f.length());
+		try {
+			return values.integer(REGISTRY.size(g));
 		}
-		else {
-			try (InputStream in = REGISTRY.getInputStream(g)) {
-				long total = 0;
-				byte[] buffer = new byte[2048];
-				int block;
-				while ((block = in.read(buffer)) != -1) {
-					total += block;
-				}
-				return values.integer(total);
-			}
-			catch (IOException e) {
-				throw RuntimeExceptionFactory.io(e);
-			}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e);
 		}
 	}
 	

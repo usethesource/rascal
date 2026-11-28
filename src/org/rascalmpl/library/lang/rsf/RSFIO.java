@@ -61,9 +61,7 @@ public class RSFIO {
 	{
 		HashMap<java.lang.String, ISetWriter> table = new HashMap<java.lang.String, ISetWriter>();
 	
-		Reader input = null;
-		try {
-			input = URIResolverRegistry.getInstance().getCharacterReader(nameRSFFile);
+		try (Reader input = URIResolverRegistry.getInstance().getCharacterReader(nameRSFFile)) {
 			BufferedReader bufRead = new BufferedReader(input);
 			java.lang.String line = bufRead.readLine();
 
@@ -82,15 +80,6 @@ public class RSFIO {
 
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e);
-		}
-		finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-						throw RuntimeExceptionFactory.io(e);
-				}
-			}
 		}
 
 		IMapWriter mw = values.mapWriter();
@@ -192,10 +181,7 @@ public class RSFIO {
 	{
 		HashMap<java.lang.String, Type> table = new HashMap<java.lang.String, Type>();
 	
-		Reader reader = null;
-		try {
-			reader = URIResolverRegistry.getInstance().getCharacterReader(loc);
-		
+		try (var reader = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
 			java.lang.String line = readLine(reader);
 
 			while (!line.isEmpty()) {
@@ -212,19 +198,8 @@ public class RSFIO {
 							
 				line = readLine(reader);
 			}
-			reader.close();
-
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e);
-		}
-		finally {
-			if (reader != null){
-				try {
-					reader.close();
-				} catch (IOException e){
-					throw RuntimeExceptionFactory.io(e);
-				}
-			}
 		}
 		
 		IMapWriter mr = values.mapWriter();
